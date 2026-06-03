@@ -8,6 +8,7 @@ import DashboardLayout from './components/Layout/DashboardLayout';
 import ChatPanel from './views/ChatPanel';
 import ProfileView from './views/ProfileView';
 import SettingView from './views/SettingView';
+import HistoryView from './views/HistoryView';
 import PlaceholderPanel from './views/PlaceholderPanel';
 
 function AuthLoading() {
@@ -82,15 +83,7 @@ export default function App() {
                 />
               }
             />
-            <Route
-              path="history"
-              element={
-                <PlaceholderPanel
-                  title="Chat History"
-                  description="Past conversations will load from the server once the history endpoint is ready."
-                />
-              }
-            />
+            <Route path="history" element={<HistoryView />} />
           </Route>
 
           {/* Legacy paths → nested dashboard routes */}
