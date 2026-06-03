@@ -1,4 +1,52 @@
-/* Core Tailwind injections placeholder */
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@theme {
+  /* Primary Purple Custom Variations */
+  --color-primary: #6C4DFF;
+  --color-primary-dark: #4F2FFF;
+  --color-primary-light: #F3F0FF;
+  --color-primary-muted: #8B6CFF;
+  
+  /* Healthcare Specific Design States */
+  --color-success: #22C55E;
+  --color-success-bg: #DCFCE7;
+  --color-info: #3B82F6;
+  --color-info-bg: #DBEAFE;
+  --color-warning: #F59E0B;
+  --color-error: #EF4444;
+  
+  /* Application Surface Backgrounds */
+  --color-app-bg: #F8FAFC;
+  --color-card-bg: #FFFFFF;
+  --color-sidebar-bg: #FFFFFF;
+  
+  /* Typography Semantic Colors */
+  --color-heading: #111827;
+  --color-body: #374151;
+  --color-secondary: #6B7280;
+  --color-placeholder: #9CA3AF;
+  
+  /* Border Structural Rules */
+  --color-border-default: #E5E7EB;
+  --color-border-active: #C4B5FD;
+
+  /* Custom Elevation Component Shadows */
+  --shadow-card: 0px 4px 20px rgba(108, 77, 255, 0.08);
+  --shadow-modal: 0px 12px 40px rgba(108, 77, 255, 0.15);
+
+  /* Precise Corner Radius Standard Rules */
+  --radius-button: 12px;
+  --radius-input: 12px;
+  --radius-card: 20px;
+  --radius-bubble: 18px;
+  --radius-modal: 24px;
+}
+
+/* Custom brand gradient */
+.bg-brand-gradient {
+  background: linear-gradient(135deg, #6C4DFF 0%, #8B6CFF 100%);
+}
+
+.login-gradient {
+  background: linear-gradient(135deg, #6C4DFF 0%, #8B6CFF 50%, #4F2FFF 100%);
+}
