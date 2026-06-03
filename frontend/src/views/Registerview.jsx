@@ -1,35 +1,57 @@
-// frontend/src/views/LoginView.jsx
+// frontend/src/views/RegisterView.jsx
 import React, { useState, useContext } from 'react';
 import { motion } from 'framer-motion';
-import { FiMail, FiLock, FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiMail, FiLock, FiUser, FiEye, FiEyeOff } from 'react-icons/fi';
 import { MdShield } from 'react-icons/md';
 import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
-import { AuthContext } from '../context/AuthContext';
 import { env } from '../config/env';
 
-export default function LoginView() {
-  const auth = useContext(AuthContext);
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-  const [rememberMe, setRememberMe] = useState(true);
+export default function RegisterView() {
+  const [formData, setFormData] = useState({
+    name: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleRegister = async (e) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setSuccess('');
+
+    if (formData.password !== formData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (formData.password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return;
+    }
+
+    setLoading(true);
     try {
-      const { data } = await api.post('/auth/login', { username, password });
-      auth.login(data.user, data.token, { persist: rememberMe });
-      if (env.postLoginPath) {
-        navigate(env.postLoginPath, { replace: true });
-      }
+      await api.post('/auth/register', {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password,
+      });
+      setSuccess('Registration successful! Redirecting to login...');
+      setTimeout(() => navigate(env.routes.login, { replace: true }), 2000);
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      setError(err.response?.data?.message || 'Registration failed');
     } finally {
       setLoading(false);
     }
@@ -66,19 +88,6 @@ export default function LoginView() {
       <div className="absolute top-[40%] right-[8%] text-primary/10 font-light text-8xl select-none hidden md:block">+</div>
       <div className="absolute bottom-[20%] left-[7%] text-primary/15 font-light text-6xl select-none hidden md:block">+</div>
 
-      {/* Decorative Mock-up Hospital Vector Substrate Illustration */}
-      <div className="absolute top-[4%] inset-x-0 flex justify-center opacity-[0.07] pointer-events-none">
-        <svg width="280" height="140" viewBox="0 0 300 150" className="text-primary">
-          <rect x="70" y="20" width="160" height="130" fill="currentColor" rx="8" />
-          <rect x="90" y="40" width="25" height="25" fill="white" rx="3" />
-          <rect x="135" y="40" width="25" height="25" fill="white" rx="3" />
-          <rect x="180" y="40" width="25" height="25" fill="white" rx="3" />
-          <rect x="90" y="85" width="25" height="25" fill="white" rx="3" />
-          <rect x="135" y="85" width="25" height="25" fill="white" rx="3" />
-          <rect x="180" y="85" width="25" height="25" fill="white" rx="3" />
-        </svg>
-      </div>
-
       <motion.div
         className="relative z-10 w-full max-w-[440px]"
         variants={containerVariants}
@@ -88,7 +97,7 @@ export default function LoginView() {
         {/* Top Centered Floating Location Badge */}
         <motion.div className="mb-5 flex justify-center" variants={itemVariants}>
           <div className="bg-primary px-7 py-2 rounded-xl text-white text-sm font-bold tracking-wide shadow-md">
-            Login Page
+            Create Account
           </div>
         </motion.div>
 
@@ -118,10 +127,10 @@ export default function LoginView() {
 
           {/* Operational Greeting Labels */}
           <motion.h2 className="text-2xl font-bold text-heading text-center mb-1" variants={itemVariants}>
-            Welcome Back!
+            Join ASK_ME
           </motion.h2>
           <motion.p className="text-center text-secondary text-sm mb-7" variants={itemVariants}>
-            Sign in to continue to ASK_ME
+            Create your account to get started
           </motion.p>
 
           {/* Error Message Container */}
@@ -137,29 +146,63 @@ export default function LoginView() {
             </motion.div>
           )}
 
+          {/* Success Message Container */}
+          {success && (
+            <motion.div
+              className="mb-5 p-3.5 bg-success/10 border border-success/20 text-success rounded-input text-xs font-semibold flex items-center gap-2"
+              variants={itemVariants}
+              initial={{ opacity: 0, y: -8 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
+              {success}
+            </motion.div>
+          )}
+
           {/* Core Access Input Forms */}
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleRegister} className="space-y-4">
             
-            {/* Identity Field Wrapper */}
+            {/* Full Name Block */}
             <motion.div variants={itemVariants}>
               <label className="block text-sm font-bold text-heading mb-1.5">
-                Username
+                Full Name
               </label>
               <div className="relative group">
-                <FiMail className="absolute left-4 top-3.5 text-secondary/70 group-focus-within:text-primary transition-colors duration-150 w-4 h-4" />
+                <FiUser className="absolute left-4 top-3.5 text-secondary/70 group-focus-within:text-primary transition-colors duration-150 w-4 h-4" />
                 <input
                   type="text"
-                  placeholder="Enter your username"
-                  value={username}
-                  onChange={(e) => setUsername(e.target.value)}
+                  name="name"
+                  placeholder="Enter your full name"
+                  value={formData.name}
+                  onChange={handleChange}
                   required
-                  autoComplete="username"
+                  autoComplete="name"
                   className="w-full pl-11 pr-4 py-3 bg-white border border-border-default rounded-input text-sm text-body placeholder-placeholder/80 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all duration-150 font-medium shadow-sm"
                 />
               </div>
             </motion.div>
 
-            {/* Cryptographic Access Password Field Wrapper */}
+            {/* Email Block */}
+            <motion.div variants={itemVariants}>
+              <label className="block text-sm font-bold text-heading mb-1.5">
+                Email
+              </label>
+              <div className="relative group">
+                <FiMail className="absolute left-4 top-3.5 text-secondary/70 group-focus-within:text-primary transition-colors duration-150 w-4 h-4" />
+                <input
+                  type="email"
+                  name="email"
+                  placeholder="Enter your email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  required
+                  autoComplete="email"
+                  className="w-full pl-11 pr-4 py-3 bg-white border border-border-default rounded-input text-sm text-body placeholder-placeholder/80 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all duration-150 font-medium shadow-sm"
+                />
+              </div>
+            </motion.div>
+
+            {/* Password Block */}
             <motion.div variants={itemVariants}>
               <label className="block text-sm font-bold text-heading mb-1.5">
                 Password
@@ -168,11 +211,12 @@ export default function LoginView() {
                 <FiLock className="absolute left-4 top-3.5 text-secondary/70 group-focus-within:text-primary transition-colors duration-150 w-4 h-4" />
                 <input
                   type={showPassword ? 'text' : 'password'}
+                  name="password"
                   placeholder="Enter your password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
+                  value={formData.password}
+                  onChange={handleChange}
                   required
-                  autoComplete="current-password"
+                  autoComplete="new-password"
                   className="w-full pl-11 pr-11 py-3 bg-white border border-border-default rounded-input text-sm text-body placeholder-placeholder/80 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all duration-150 font-medium tracking-wide shadow-sm"
                 />
                 <button
@@ -186,23 +230,35 @@ export default function LoginView() {
               </div>
             </motion.div>
 
-            {/* Remember Me Configuration Row */}
-            <motion.div className="flex items-center justify-between pt-1" variants={itemVariants}>
-              <label className="flex items-center gap-2 cursor-pointer select-none">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-border-default text-primary focus:ring-primary/10 focus:ring-offset-0 cursor-pointer accent-primary"
-                />
-                <span className="text-sm text-body font-semibold">Remember me</span>
+            {/* Confirm Password Block */}
+            <motion.div variants={itemVariants}>
+              <label className="block text-sm font-bold text-heading mb-1.5">
+                Confirm Password
               </label>
-              <Link to="#" className="text-sm font-bold text-primary hover:text-primary-dark transition-colors duration-150">
-                Forgot password?
-              </Link>
+              <div className="relative group">
+                <FiLock className="absolute left-4 top-3.5 text-secondary/70 group-focus-within:text-primary transition-colors duration-150 w-4 h-4" />
+                <input
+                  type={showConfirmPassword ? 'text' : 'password'}
+                  name="confirmPassword"
+                  placeholder="Confirm your password"
+                  value={formData.confirmPassword}
+                  onChange={handleChange}
+                  required
+                  autoComplete="new-password"
+                  className="w-full pl-11 pr-11 py-3 bg-white border border-border-default rounded-input text-sm text-body placeholder-placeholder/80 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all duration-150 font-medium tracking-wide shadow-sm"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-4 top-3.5 text-secondary/60 hover:text-primary transition-colors duration-150 focus:outline-none"
+                  aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
+                >
+                  {showConfirmPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
+                </button>
+              </div>
             </motion.div>
 
-            {/* Action Executive Trigger Execution Button */}
+            {/* Submit Action Button */}
             <motion.button
               type="submit"
               disabled={loading}
@@ -216,10 +272,10 @@ export default function LoginView() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                   </svg>
-                  <span>Signing in...</span>
+                  <span>Creating account...</span>
                 </div>
               ) : (
-                <span>Sign In</span>
+                <span>Sign Up</span>
               )}
             </motion.button>
           </form>
@@ -233,12 +289,12 @@ export default function LoginView() {
 
           {/* Onboarding Alternate Paths Core Link */}
           <motion.p className="text-center text-sm text-body font-medium" variants={itemVariants}>
-            Don&apos;t have an account?{' '}
+            Already have an account?{' '}
             <Link
-              to={env.routes.register}
+              to={env.routes.login}
               className="text-primary hover:text-primary-dark font-bold transition-colors duration-150 ml-0.5"
             >
-              Create one
+              Sign in
             </Link>
           </motion.p>
         </div>

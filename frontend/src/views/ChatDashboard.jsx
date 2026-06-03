@@ -1,5 +1,5 @@
-import React from 'react';
-
-export default function ChatDashboard() {
-  return <div className="flex">ChatDashboard</div>;
-}
+/**
+ * @deprecated Use DashboardLayout + nested routes (ChatPanel, ProfileView, etc.)
+ * Kept as re-export for any old imports.
+ */
+export { default } from '../components/Layout/DashboardLayout';

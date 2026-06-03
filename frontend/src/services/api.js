@@ -1,16 +1,13 @@
 import axios from 'axios';
+import { env } from '../config/env';
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://localhost:4000/api';
-
-// Create axios instance
 const api = axios.create({
-  baseURL: API_BASE,
+  baseURL: env.apiBase,
   headers: {
     'Content-Type': 'application/json',
   },
 });
 
-// Add token to requests if available
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('token');
@@ -19,20 +16,16 @@ api.interceptors.request.use(
     }
     return config;
   },
-  (error) => {
-    return Promise.reject(error);
-  }
+  (error) => Promise.reject(error)
 );
 
-// Handle response errors
 api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
-      // Redirect to login on unauthorized
       localStorage.removeItem('token');
       localStorage.removeItem('user');
-      window.location.href = '/';
+      window.location.href = env.routes.login;
     }
     return Promise.reject(error);
   }
