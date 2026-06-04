@@ -1,4 +1,3 @@
-import readlineSync from 'readline-sync';
 import { GoogleGenerativeAIEmbeddings,ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { Pinecone } from '@pinecone-database/pinecone';
 import * as dotenv from 'dotenv';
@@ -90,12 +89,4 @@ Answer:
     // Output create kar dunga
 }
 
-
-async function main(){
-   const userProblem = readlineSync.question("Ask me anything--> ");
-   await chatting(userProblem);
-   main();
-}
-
-
-main();
+export { chatting };

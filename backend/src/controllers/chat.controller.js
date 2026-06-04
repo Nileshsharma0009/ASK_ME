@@ -1,4 +1,5 @@
 import ChatHistory from "../models/ChatHistory.js";
+import { chatting } from "../rag/query.js";
 
 function buildChatTitle(question) {
   const cleanQuestion = question.trim().replace(/\s+/g, " ");
@@ -60,9 +61,18 @@ export const sendMessage = async (req, res) => {
       },
     };
 
+    // call RAG pipeline to get an answer (falls back to mock reply on error)
+    let ragAnswer = null;
+    try {
+      ragAnswer = await chatting(question.trim());
+    } catch (err) {
+      console.error('RAG pipeline error:', err);
+      ragAnswer = null;
+    }
+
     const assistantMessage = {
       sender: "ai",
-      text: buildAssistantReply(question.trim()),
+      text: ragAnswer || buildAssistantReply(question.trim()),
       metadata: {
         retrieval: ["app-db", "vector-db", "similarity-search", "llm"],
         source: "rag-pipeline",
