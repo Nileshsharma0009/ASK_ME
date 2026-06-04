@@ -43,11 +43,16 @@ export default function RegisterView() {
 
     setLoading(true);
     try {
-      await api.post('/auth/register', {
+      // 1. .env se base URL uthaya
+      const baseUrl = import.meta.env.VITE_BACKEND_URL;
+
+      // 2. Full dynamic URL par POST request bhej di
+      await api.post(`${baseUrl}/auth/register`, {
         name: formData.name,
         email: formData.email,
         password: formData.password,
       });
+
       setSuccess('Registration successful! Redirecting to login...');
       setTimeout(() => navigate(env.routes.login, { replace: true }), 2000);
     } catch (err) {

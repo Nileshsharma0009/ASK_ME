@@ -18,12 +18,21 @@ export default function LoginView() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  const handleLogin = async (e) => {
+const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
     try {
-      const { data } = await api.post('/auth/login', { username, password });
+      // 1. .env se base URL uthaya (e.g., http://localhost:4000/api)
+      const baseUrl = import.meta.env.VITE_BACKEND_URL; 
+      
+      // 2. Direct full dynamic URL par POST request bhej di
+     const { data } = await api.post(`${baseUrl}/auth/login`, {
+  email: username,
+  password,
+});
+
+      
       auth.login(data.user, data.token, { persist: rememberMe });
       if (env.postLoginPath) {
         navigate(env.postLoginPath, { replace: true });

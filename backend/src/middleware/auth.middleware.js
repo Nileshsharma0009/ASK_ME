@@ -1,13 +1,21 @@
-// ============================================
-// AUTH MIDDLEWARE - JWT Verification
-// ============================================
-// TODO: Verify JWT token on protected routes
+import jwt from "jsonwebtoken";
 
 function authMiddleware(req, res, next) {
-  // TODO: Extract token from Authorization header
-  // TODO: Verify token with JWT secret
-  // TODO: Attach user to req.user
-  // TODO: Call next() if valid, send 401 if invalid
+  try {
+    const authHeader = req.headers.authorization || "";
+    const [scheme, token] = authHeader.split(" ");
+
+    if (scheme !== "Bearer" || !token) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    req.user = { id: decoded.id };
+    next();
+  } catch (error) {
+    return res.status(401).json({ message: "Unauthorized" });
+  }
 }
 
-module.exports = authMiddleware;
+export default authMiddleware;
