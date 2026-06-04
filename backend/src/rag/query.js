@@ -1,17 +1,17 @@
-import { GoogleGenerativeAIEmbeddings,ChatGoogleGenerativeAI } from '@langchain/google-genai';
+import { GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI } from '@langchain/google-genai';
 import { Pinecone } from '@pinecone-database/pinecone';
+import { PineconeStore } from '@langchain/pinecone'; // Added this import
 import * as dotenv from 'dotenv';
 dotenv.config();
 import { PromptTemplate } from '@langchain/core/prompts';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { RunnableSequence } from '@langchain/core/runnables';
 
-// configuration
+// Configuration
 const embeddings = new GoogleGenerativeAIEmbeddings({
     apiKey: process.env.GEMINI_API_KEY,
     model: 'text-embedding-004',
 });
-
 
 const model = new ChatGoogleGenerativeAI({
     apiKey: process.env.GEMINI_API_KEY,
@@ -19,40 +19,26 @@ const model = new ChatGoogleGenerativeAI({
     temperature: 0.3, 
 });
 
-// configure Pinecone
+// Configure Pinecone
 const pinecone = new Pinecone();
 const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX_NAME);
 
-
-
 async function chatting(question) {
-    
+    try {
+        // Initialize the PineconeStore instance so LangChain manages retrieval format seamlessly
+        const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
+            pineconeIndex,
+        });
 
-    // intent model ko introduce: Homework
+        // Use similarity search to fetch top 10 relevant documents
+        const searchResults = await vectorStore.similaritySearch(question, 10);
 
+        // Map the document content accurately using LangChain's standard property
+        const context = searchResults
+            .map(doc => doc.pageContent)
+            .join("\n\n---\n\n");
 
-    // question ki embedding create karna hai
-    const queryVector = await embeddings.embedQuery(question);  
-
-    // embeddig aagyi, uske baad usko vectorDB ke andar search karna, top10
-    const searchResults = await pineconeIndex.query({
-    topK: 10,
-    vector: queryVector,
-    includeMetadata: true,
-    });
-
-
-    const context = searchResults.matches
-                   .map(match => match.metadata.text)
-                   .join("\n\n---\n\n");
-
-
-    // console.log(searchResults);
-
-
-    // top10+question isko mein llm ko de dunga
-
-    const promptTemplate = PromptTemplate.fromTemplate(`
+        const promptTemplate = PromptTemplate.fromTemplate(`
 You are a helpful assistant answering questions based on the provided documentation.
 
 Context from the documentation:
@@ -69,24 +55,25 @@ Instructions:
 Answer:
         `);
 
-
         const chain = RunnableSequence.from([
             promptTemplate,
             model,
             new StringOutputParser(),
         ]);
 
-        // Step 6: Invoke the chain and get the answer
+        // Invoke the chain and get the answer
         const answer = await chain.invoke({
             context: context,
             question: question,
         }); 
-       
 
-        console.log(answer);
+        // CRITICAL FIX: Return the answer back to your Express route controller!
+        return answer;
 
-
-    // Output create kar dunga
+    } catch (error) {
+        console.error("Error inside chatting pipeline:", error);
+        throw error; // Let the controller catch block handle the fallback safely
+    }
 }
 
 export { chatting };

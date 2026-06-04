@@ -353,7 +353,7 @@ export default function ChatPanel() {
                 value={inputMessage}
                 onChange={(event) => setInputMessage(event.target.value)}
                 onKeyDown={handleKeyDown}
-                className="max-h-52 min-h-[48px] flex-1 resize-none overflow-y-auto bg-transparent px-1 py-3 text-[15px] leading-7 text-heading outline-none placeholder:text-placeholder"
+                className="max-h-52 min-h-[14px] flex-1 resize-none overflow-y-auto bg-transparent px-1 py-3 text-[15px] leading-7 text-heading outline-none placeholder:text-placeholder"
               />
 
               <button
