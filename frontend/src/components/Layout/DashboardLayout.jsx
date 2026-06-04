@@ -10,8 +10,6 @@ import {
   FiLogOut,
   FiBell,
   FiChevronDown,
-  FiMenu,
-  FiSidebar,
 } from 'react-icons/fi';
 import { MdShield } from 'react-icons/md';
 import { AuthContext } from '../../context/AuthContext';
@@ -20,7 +18,7 @@ import { env } from '../../config/env';
 
 // 1. Clean Configuration for Navigation Items
 const NAV_ITEMS = [
-  { to: '.', end: true, label: 'Ask ASK_ME', icon: FiMessageSquare, segment: 'chat' },
+  { to: '.', end: true, label: 'ASK_ME', icon: FiMessageSquare, segment: 'chat' },
   { to: 'New chat', label: 'New chat', icon: FiUploadCloud, segment: 'New chat' },
   { to: 'history', label: 'History', icon: FiClock, segment: 'history' },
   { to: 'profile', label: 'Profile', icon: FiUser, segment: 'profile' },
@@ -31,7 +29,7 @@ const NAV_ITEMS = [
 const PAGE_TITLES = {
   chat: (name) => (
     <div className="flex items-center gap-2">
-      <span>Hey <span className="text-primary">{name}</span></span>
+      <span>Hey , <span className="text-primary">{name}</span></span>
       <span className="animate-bounce origin-bottom-right inline-block"></span>
     </div>
   ),
@@ -58,32 +56,29 @@ export default function DashboardLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
   // Destructure direct state manipulators from shared layout memory context
-
-
   // TO THIS:
-const { 
-  conversationId, // ◄ Added this missing variable right here!
-  setMessages, 
-  setConversationId, 
-  setInputMessage, 
-  setAnimatedMessageId 
-} = useContext(ChatContext);
-
+  const { 
+    conversationId, // ◄ Added this missing variable right here!
+    setMessages, 
+    setConversationId, 
+    setInputMessage, 
+    setAnimatedMessageId 
+  } = useContext(ChatContext);
 
   /* ==========================================================================
-     TODO: BACKEND_INTEGRATION
-     Verify your AuthContext model matches these properties. When pulling 
-     from real database user schemas, ensure fallback properties account 
-     for incomplete administrative credentials or specialized roles.
-     ========================================================================== */
+      TODO: BACKEND_INTEGRATION
+      Verify your AuthContext model matches these properties. When pulling 
+      from real database user schemas, ensure fallback properties account 
+      for incomplete administrative credentials or specialized roles.
+      ========================================================================== */
   const userDisplayName = auth?.user?.name || 'Medical Officer';
-  const userDepartment = auth?.user?.department || 'Healthcare';
+  const userDepartment = auth?.user?.department || '';
   
   const segment = getActiveSegment(location.pathname);
   const headerTitle = PAGE_TITLES[segment];
   const isChat = segment === 'chat' || segment === 'New chat'; // Keeps layout full-bleed fluid for fresh canvases
 
-  // Fluid UI Animation Transitions
+  // Fluid UI Animation Transitions Updated to prevent full disappearing down to an iconic vertical strip width
   const sidebarVariants = {
     open: {
       width: '260px',
@@ -91,8 +86,8 @@ const {
       transition: { type: 'spring', stiffness: 240, damping: 28 },
     },
     closed: {
-      width: '0px',
-      opacity: 0,
+      width: '72px',
+      opacity: 1,
       transition: { type: 'spring', stiffness: 240, damping: 28 },
     },
   };
@@ -136,42 +131,48 @@ const {
         initial="open"
         className="bg-sidebar-bg border-r border-border-default flex flex-col justify-between h-screen sticky top-0 shrink-0 overflow-hidden z-40 shadow-sm"
       >
-        <div className="w-[260px] flex flex-col justify-between h-full">
-          <div className="p-5">
+        <div className="w-full flex flex-col justify-between h-full">
+          <div className="p-4 flex flex-col items-center">
             
             {/* SIDEBAR HEADER: Branding Layer & Collapse Button */}
-            <div className="flex items-center justify-between mb-8">
-              <div className="flex items-center gap-3">
-                {/* Decorative Branding Shield Badge */}
-                <div className="w-10 h-10 rounded-xl bg-primary flex items-center justify-center text-white shadow-md shadow-primary/20">
-                  <div className="relative flex items-center justify-center">
-                    <MdShield className="w-6 h-6 text-white" />
-                    <span className="absolute text-primary font-black text-[10px] pb-0.5">+</span>
-                  </div>
-                </div>
-                <div>
-                  <h1 className="text-base font-black tracking-tight text-heading">
-                    ASK<span className="text-primary">_ME</span>
-                  </h1>
-                  <p className="text-[9px] uppercase tracking-widest text-secondary font-extrabold">
-                    Clinical RAG Engine
-                  </p>
-                </div>
-              </div>
-              
-              {/* Trigger button for shrinking the navigation dashboard frame */}
-              <button
-                type="button"
-                onClick={() => setIsSidebarOpen(false)}
-                className="p-1.5 rounded-lg text-secondary hover:bg-app-bg hover:text-heading transition-colors duration-150"
-                aria-label="Close sidebar"
-              >
-                <FiSidebar className="w-4 h-4" />
-              </button>
-            </div>
+         {/* SIDEBAR HEADER: Branding Layer & Collapse Handle */}
+<div className={`flex items-center w-full mb-8 ${isSidebarOpen ? 'justify-between px-1' : 'justify-center'}`}>
+  
+  {/* FIXED: Turn the entire logo branding segment into an interactive toggle button track */}
+  <div 
+    onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+    className="flex items-center gap-3 overflow-hidden cursor-pointer select-none active:scale-98 transition-all duration-200"
+    title={isSidebarOpen ? "Collapse sidebar" : "Expand sidebar"}
+  >
+    {/* Decorative Branding Image Logo Badge */}
+    <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shrink-0 shadow-md shadow-primary/10 bg-white">
+      <img 
+        src="/logo2.png" // ◄ Change "logo.png" to your exact file name (e.g., /hospital-logo.svg, /logo.png, etc.)
+        alt="Hospital Logo"
+        className="w-full h-full object-cover"
+      />
+    </div>
+    
+    {isSidebarOpen && (
+      <motion.div 
+        initial={{ opacity: 0, x: -4 }} 
+        animate={{ opacity: 1, x: 0 }} 
+        className="whitespace-nowrap"
+      >
+        <h1 className="text-base font-black tracking-tight text-heading">
+          ASK<span className="text-primary">_ME</span>
+        </h1>
+        <p className="text-[9px] uppercase tracking-widest text-secondary font-extrabold">
+          Clinical RAG Engine
+        </p>
+      </motion.div>
+    )}
+  </div>
+</div>
 
+            
             {/* SIDEBAR NAVIGATION LINKS LAYER */}
-            <nav className="space-y-1.5">
+            <nav className="space-y-1.5 w-full flex flex-col items-center">
               {NAV_ITEMS.map((item) => {
                 const Icon = item.icon;
 
@@ -182,10 +183,11 @@ const {
                       key={item.segment}
                       type="button"
                       onClick={handleNewChatClick}
-                      className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold tracking-wide text-secondary hover:bg-app-bg hover:text-heading transition-all duration-200 text-left"
+                      title={!isSidebarOpen ? item.label : undefined}
+                      className={`flex items-center gap-3 py-2.5 rounded-xl text-sm font-bold tracking-wide text-secondary hover:bg-app-bg hover:text-heading transition-all duration-200 text-left ${isSidebarOpen ? 'w-full px-3.5' : 'w-10 h-10 justify-center px-0'}`}
                     >
-                      <Icon className="w-4 h-4 text-secondary" />
-                      <span>{item.label}</span>
+                      <Icon className="w-4 h-4 text-secondary shrink-0" />
+                      {isSidebarOpen && <span>{item.label}</span>}
                     </button>
                   );
                 }
@@ -200,8 +202,11 @@ const {
                     key={item.segment}
                     to={resolvedPath}
                     end={item.end}
+                    title={!isSidebarOpen ? item.label : undefined}
                     className={({ isActive }) =>
-                      `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 ${
+                      `flex items-center gap-3 py-2.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 ${
+                        isSidebarOpen ? 'w-full px-3.5' : 'w-10 h-10 justify-center px-0'
+                      } ${
                         isActive
                           ? 'bg-primary text-white shadow-md shadow-primary/20 scale-[1.01]'
                           : 'text-secondary hover:bg-app-bg hover:text-heading'
@@ -210,8 +215,8 @@ const {
                   >
                     {({ isActive }) => (
                       <>
-                        <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-secondary'}`} />
-                        <span>{item.label}</span>
+                        <Icon className={`w-4 h-4 shrink-0 ${isActive ? 'text-white' : 'text-secondary'}`} />
+                        {isSidebarOpen && <span>{item.label}</span>}
                       </>
                     )}
                   </NavLink>
@@ -221,14 +226,15 @@ const {
           </div>
 
           {/* SIDEBAR FOOTER ACTION: Session Revocation Hub */}
-          <div className="p-5 border-t border-border-default">
+          <div className="p-4 border-t border-border-default flex justify-center">
             <button
               type="button"
               onClick={handleLogout}
-              className="w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold tracking-wide text-rose-500 hover:bg-rose-50/60 transition-all duration-150"
+              title={!isSidebarOpen ? 'Sign Out' : undefined}
+              className={`flex items-center gap-3 py-2.5 rounded-xl text-sm font-bold tracking-wide text-rose-500 hover:bg-rose-50/60 transition-all duration-150 ${isSidebarOpen ? 'w-full px-3.5' : 'w-10 h-10 justify-center px-0'}`}
             >
-              <FiLogOut className="w-4 h-4" />
-              <span>Sign Out</span>
+              <FiLogOut className="w-4 h-4 shrink-0" />
+              {isSidebarOpen && <span>Sign Out</span>}
             </button>
           </div>
         </div>
@@ -245,23 +251,7 @@ const {
         <header className="h-20 bg-card-bg/80 backdrop-blur-md px-6 md:px-8 border-b border-border-default flex items-center justify-between shrink-0 gap-4 z-30">
           <div className="flex items-center gap-4">
             
-            {/* CONDITIONAL ACTION: Expand Drawer Trigger Button */}
-            <AnimatePresence mode="wait">
-              {!isSidebarOpen && (
-                <motion.button
-                  type="button"
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  exit={{ opacity: 0, scale: 0.8 }}
-                  transition={{ duration: 0.15 }}
-                  onClick={() => setIsSidebarOpen(true)}
-                  className="w-10 h-10 bg-card-bg border border-border-default rounded-xl flex items-center justify-center text-secondary hover:text-primary hover:border-primary/30 transition-all shadow-sm shrink-0"
-                  aria-label="Open sidebar"
-                >
-                  <FiMenu className="w-4 h-4" />
-                </motion.button>
-              )}
-            </AnimatePresence>
+            {/* FIXED: Removed the redundant three-line menu button overlay completely to match clean iconic minimized layout states */}
 
             {/* DYNAMIC HEADER TEXT: Target Segment Component Interpolations */}
             <div>
@@ -284,26 +274,28 @@ const {
           <div className="flex items-center gap-4">
             
             {/* CONTROL TRIGGER: Operational Notification Hub Overlay */}
-            <button
-              type="button"
-              onClick={() => {
-                /* TODO: BACKEND_INTEGRATION route notification center panels or dynamic state popups */
-              }}
-              className="w-10 h-10 bg-card-bg border border-border-default rounded-xl flex items-center justify-center text-secondary hover:text-heading transition-all relative"
-              aria-label="Notifications"
-            >
-              <FiBell className="w-4 h-4" />
-              {/* TODO: BACKEND_INTEGRATION bind badge rendering logic to dynamic unread database queries */}
-              <span className="absolute top-3 right-3 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-card-bg" />
-            </button>
 
             {/* USER QUICK LINK SECTION: Profile Avatar & Secondary Metadata Details */}
+            {/* ==========================================================================
+            USER QUICK LINK SECTION: Profile Avatar & Secondary Metadata Details
+            ========================================================================== */}
             <NavLink
               to="profile"
               className="flex items-center gap-3 border-l border-border-default pl-4 hover:opacity-80 transition-opacity"
             >
               <img
-                src={auth?.user?.profileImage || "https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=100"} /* TODO: BACKEND_INTEGRATION bind to AuthContext payload profileImage URL */
+                src={
+                  auth?.user?.profileImage || 
+                  (() => {
+                    const LOCAL_AVATARS = ["/1.png", "/2.png", "/3.png", "/4.png", "/5.png"];
+                    const email = auth?.user?.email || "default";
+                    let hash = 0;
+                    for (let i = 0; i < email.length; i++) {
+                      hash += email.charCodeAt(i);
+                    }
+                    return LOCAL_AVATARS[hash % LOCAL_AVATARS.length];
+                  })()
+                } /* FIXED: Linked cleanly to the deterministic /public folder hashing rotation sequence */
                 alt="Profile Avatar"
                 className="w-9 h-9 rounded-full object-cover ring-2 ring-primary/10"
               />

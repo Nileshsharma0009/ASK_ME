@@ -7,6 +7,29 @@ import { AuthContext } from '../context/AuthContext';
 export default function ProfileView() {
   const auth = useContext(AuthContext);
 
+  /* ==========================================================================
+     FIXED: Correct absolute path references for assets inside the public folder.
+     In Vite development ecosystems, paths inside /public are directly served 
+     from the base root directory without needing relative system folder levels.
+     ========================================================================== */
+  const LOCAL_AVATARS = [
+    "/1.png",
+    "/2.png",
+    "/3.png",
+    "/4.png",
+    "/5.png"
+  ];
+
+  // Helper deterministic formula mapping user emails consistently to one of the 5 local image slices
+  const getAvatarIndex = (str) => {
+    if (!str) return 0;
+    let hash = 0;
+    for (let i = 0; i < str.length; i++) {
+      hash += str.charCodeAt(i);
+    }
+    return hash % LOCAL_AVATARS.length;
+  };
+
   const [profileData, setProfileData] = useState({
     fullName: auth?.user?.name || 'User',
     email: auth?.user?.email || 'user@example.com',
@@ -23,7 +46,9 @@ export default function ProfileView() {
     memberSince: 'May 15, 2025', // TODO: Fetch dynamic dynamic registration date string
     isVerified: true,            // TODO: Fetch dynamic dynamic account verification state
     twoFactorEnabled: false,     // TODO: Fetch dynamic dynamic 2FA system setting status
-    profileImage: 'https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=240', // TODO: Fetch active CDN URL path
+    
+    // Assigned deterministic dynamic string reference from your local asset arrays folder
+    profileImage: auth?.user?.profileImage || LOCAL_AVATARS[getAvatarIndex(auth?.user?.email || 'default')], // TODO: Fetch active CDN URL path
   });
 
   useEffect(() => {
@@ -44,7 +69,7 @@ export default function ProfileView() {
     //       memberSince: new Date(data.createdAt).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }),
     //       isVerified: data.isVerified,
     //       twoFactorEnabled: data.twoFactorEnabled,
-    //       profileImage: data.profileImage || 'fallback-avatar-url'
+    //       profileImage: data.profileImage || LOCAL_AVATARS[getAvatarIndex(data.email || 'default')]
     //     });
     //   } catch (error) {
     //     console.error("Failed to load backend profile details:", error);
@@ -132,7 +157,7 @@ export default function ProfileView() {
             </div>
           )}
         </div>
-                         {/* {UI COMPONENT BLOCK: RIGHT PANELS COLUMN WRAPPER} */}
+                                 {/* {UI COMPONENT BLOCK: RIGHT PANELS COLUMN WRAPPER} */}
         <div className="md:col-span-2 space-y-6">
           
           {/* ==========================================================================

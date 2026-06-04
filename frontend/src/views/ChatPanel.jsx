@@ -321,46 +321,67 @@ export default function ChatPanel() {
              UI BLOCK: EMPTY STATE / WELCOME HERO INTERFACE
              Displays logo graphics, headers, descriptions, and prompt buttons.
              ========================================================================== */
-          <div className="mx-auto flex min-h-[70vh] w-full max-w-4xl flex-col items-center justify-center text-center">
-            <motion.div
-              initial={{ opacity: 0, y: 16 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.35 }}
-              className="w-full max-w-3xl"
-            >
-              {/* HERO DECORATION: Outer Radial Graphic Border Wrapper */}
-              <div className="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-[28px] bg-[radial-gradient(circle_at_top,#ffffff,rgba(255,255,255,0.7)_35%,rgba(108,77,255,0.12)_100%)] shadow-[0_24px_60px_-28px_rgba(108,77,255,0.45)] ring-1 ring-white">
-                {/* HERO DECORATION: Brand Avatar Icon */}
-                <div className="flex h-14 w-14 items-center justify-center rounded-[22px] bg-brand-gradient text-lg font-black text-white shadow-lg shadow-primary/20">
-                  A
-                </div>
-              </div>
+          <div className="mx-auto flex min-h-[75vh] w-full max-w-5xl flex-col items-center justify-center relative px-4 overflow-hidden selection:bg-primary/20">
+    
+    {/* SYSTEM BACKGROUND ACCENTS: Subtle high-tech background matrix structure */}
+    <div className="absolute inset-0 bg-[linear-gradient(to_right,#8080800a_1px,transparent_1px),linear-gradient(to_bottom,#8080800a_1px,transparent_1px)] bg-[size:14px_24px] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_50%,#000_70%,transparent_100%)] pointer-events-none -z-10" />
+    
+    {/* SYSTEM BACKGROUND ACCENTS: Ambient layout illumination soft blur core glow */}
+    <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[340px] h-[340px] bg-primary/8 rounded-full blur-[80px] pointer-events-none -z-10 animate-[pulse_6s_ease-in-out_infinite]" />
 
-              {/* HERO TYPOGRAPHY: Primary Title Branding Heading */}
-              <h1 className="text-4xl font-black tracking-tight text-heading sm:text-5xl">
-                ASK<span className="text-primary">_ME</span>
-              </h1>
-              
-              {/* HERO TYPOGRAPHY: Subtitle Description */}
-              <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-secondary sm:text-lg">
-                Ask long-form clinical questions, reopen history, and work in a full-page conversation flow without the chat feeling trapped inside a card.
-              </p>
-
-              {/* HERO QUICK CALL TO ACTIONS: Central Suggestion Chip Grid Layout */}
-              <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
-                {quickPrompts.map((prompt) => (
-                  <button
-                    key={prompt}
-                    type="button"
-                    onClick={() => handleSendMessage(prompt)}
-                    className="rounded-full border border-border-default bg-card-bg/90 px-4 py-2.5 text-sm font-semibold text-body shadow-sm transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
-                  >
-                    {prompt}
-                  </button>
-                ))}
-              </div>
-            </motion.div>
+    <motion.div
+      initial={{ opacity: 0, y: 24 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.55, ease: [0.16, 1, 0.3, 1] }}
+      className="w-full max-w-3xl flex flex-col items-center"
+    >
+      {/* HERO DECORATION: Outer Radial Graphic Border Wrapper with layered structural rings */}
+      <div className="relative mb-10">
+        {/* Pulsing deep shadow background ring layer */}
+        <div className="absolute inset-0 rounded-[32px] bg-primary/20 blur-xl scale-95 animate-pulse" />
+        
+        <motion.div 
+          animate={{ y: [0, -6, 0] }}
+          transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}
+          className="relative mx-auto flex h-24 w-24 items-center justify-center rounded-[32px] bg-card-bg border border-border-default shadow-card ring-4 ring-primary/5"
+        >
+          {/* HERO DECORATION: Brand Avatar Icon */}
+          <div className="flex h-16 w-16 items-center justify-center rounded-[24px] bg-brand-gradient text-xl font-black text-white shadow-xl shadow-primary/30 ring-1 ring-white/20 transform-gpu transition-transform duration-300 hover:rotate-3">
+            A
           </div>
+        </motion.div>
+      </div>
+
+      {/* HERO TYPOGRAPHY: Primary Title Branding Heading */}
+      <h1 className="text-5xl font-black tracking-tight text-heading sm:text-6xl text-center font-sans">
+        ASK<span className="text-primary bg-clip-text bg-gradient-to-r from-primary to-primary-muted">_ME</span>
+      </h1>
+      
+      {/* HERO TYPOGRAPHY: Subtitle Description */}
+      <p className="mx-auto mt-6 max-w-2xl text-[15px] sm:text-[16px] font-medium leading-8 text-secondary text-center tracking-normal">
+        Ask long-form clinical questions, reopen history, and work in a full-page conversation flow without the chat feeling trapped inside a card.
+      </p>
+
+      {/* HORIZONTAL RULE: Elegant structural separator separating body layout from triggers */}
+      <div className="w-16 h-[2px] bg-gradient-to-r from-transparent via-border-default to-transparent mt-8 mb-4" />
+
+      {/* HERO QUICK CALL TO ACTIONS: Central Suggestion Chip Grid Layout with Premium Micro-Springs */}
+      <div className="mt-6 flex flex-wrap items-center justify-center gap-3.5 max-w-2xl">
+        {quickPrompts.map((prompt) => (
+          <motion.button
+            key={prompt}
+            type="button"
+            whileHover={{ scale: 1.025, y: -2 }}
+            whileTap={{ scale: 0.98 }}
+            onClick={() => handleSendMessage(prompt)}
+            className="rounded-2xl border border-border-default/80 bg-card-bg/70 backdrop-blur-sm px-5 py-3 text-sm font-bold text-body shadow-sm transition-all duration-300 hover:border-primary/40 hover:bg-gradient-to-br hover:from-card-bg hover:to-primary/5 hover:text-primary hover:shadow-md hover:shadow-primary/5 cursor-pointer text-left sm:text-center"
+          >
+            {prompt}
+          </motion.button>
+        ))}
+      </div>
+    </motion.div>
+  </div>
         ) : (
           /* ==========================================================================
              UI BLOCK: CORE CHAT FEED MESSAGES LIST
