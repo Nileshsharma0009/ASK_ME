@@ -81,14 +81,14 @@ export default function DashboardLayout() {
   };
 
   return (
-    <div className="min-h-screen bg-indigo-50/40 text-slate-700 flex antialiased selection:bg-primary/10 overflow-hidden">
+    <div className="min-h-screen bg-app-bg text-body flex antialiased selection:bg-primary/10 overflow-hidden">
       
       {/* SIDEBAR BLOCK */}
       <motion.aside
         variants={sidebarVariants}
         animate={isSidebarOpen ? 'open' : 'closed'}
         initial="open"
-        className="bg-white border-r border-slate-200/80 flex flex-col justify-between h-screen sticky top-0 shrink-0 overflow-hidden z-40 shadow-sm"
+        className="bg-sidebar-bg border-r border-border-default flex flex-col justify-between h-screen sticky top-0 shrink-0 overflow-hidden z-40 shadow-sm"
       >
         <div className="w-[260px] flex flex-col justify-between h-full">
           <div className="p-5">
@@ -103,10 +103,10 @@ export default function DashboardLayout() {
                   </div>
                 </div>
                 <div>
-                  <h1 className="text-base font-black tracking-tight text-slate-900">
+                  <h1 className="text-base font-black tracking-tight text-heading">
                     ASK<span className="text-primary">_ME</span>
                   </h1>
-                  <p className="text-[9px] uppercase tracking-widest text-slate-400 font-extrabold">
+                  <p className="text-[9px] uppercase tracking-widest text-secondary font-extrabold">
                     Clinical RAG Engine
                   </p>
                 </div>
@@ -115,7 +115,7 @@ export default function DashboardLayout() {
               <button
                 type="button"
                 onClick={() => setIsSidebarOpen(false)}
-                className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-100 hover:text-slate-700 transition-colors duration-150"
+                className="p-1.5 rounded-lg text-secondary hover:bg-app-bg hover:text-heading transition-colors duration-150"
                 aria-label="Close sidebar"
               >
                 <FiSidebar className="w-4 h-4" />
@@ -135,13 +135,13 @@ export default function DashboardLayout() {
                       `w-full flex items-center gap-3 px-3.5 py-2.5 rounded-xl text-sm font-bold tracking-wide transition-all duration-200 ${
                         isActive
                           ? 'bg-primary text-white shadow-md shadow-primary/20 scale-[1.01]'
-                          : 'text-slate-500 hover:bg-slate-50 hover:text-slate-900'
+                          : 'text-secondary hover:bg-app-bg hover:text-heading'
                       }`
                     }
                   >
                     {({ isActive }) => (
                       <>
-                        <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                        <Icon className={`w-4 h-4 ${isActive ? 'text-white' : 'text-secondary'}`} />
                         <span>{item.label}</span>
                       </>
                     )}
@@ -152,7 +152,7 @@ export default function DashboardLayout() {
           </div>
 
           {/* Sidebar Footer Account Action */}
-          <div className="p-5 border-t border-slate-100">
+          <div className="p-5 border-t border-border-default">
             <button
               type="button"
               onClick={handleLogout}
@@ -169,7 +169,7 @@ export default function DashboardLayout() {
       <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
         
         {/* APP MAIN HEADER */}
-        <header className="h-20 bg-white/70 backdrop-blur-md px-6 md:px-8 border-b border-slate-200/60 flex items-center justify-between shrink-0 gap-4 z-30">
+        <header className="h-20 bg-card-bg/80 backdrop-blur-md px-6 md:px-8 border-b border-border-default flex items-center justify-between shrink-0 gap-4 z-30">
           <div className="flex items-center gap-4">
             <AnimatePresence mode="wait">
               {!isSidebarOpen && (
@@ -180,7 +180,7 @@ export default function DashboardLayout() {
                   exit={{ opacity: 0, scale: 0.8 }}
                   transition={{ duration: 0.15 }}
                   onClick={() => setIsSidebarOpen(true)}
-                  className="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-500 hover:text-primary hover:border-primary/30 transition-all shadow-sm shrink-0"
+                  className="w-10 h-10 bg-card-bg border border-border-default rounded-xl flex items-center justify-center text-secondary hover:text-primary hover:border-primary/30 transition-all shadow-sm shrink-0"
                   aria-label="Open sidebar"
                 >
                   <FiMenu className="w-4 h-4" />
@@ -196,7 +196,7 @@ export default function DashboardLayout() {
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: 8 }}
                   transition={{ duration: 0.15 }}
-                  className="text-lg font-black text-slate-900 tracking-tight"
+                  className="text-lg font-black text-heading tracking-tight"
                 >
                   {typeof headerTitle === 'function' ? headerTitle(userDisplayName) : headerTitle}
                 </motion.div>
@@ -208,16 +208,16 @@ export default function DashboardLayout() {
           <div className="flex items-center gap-4">
             <button
               type="button"
-              className="w-10 h-10 bg-white border border-slate-200 rounded-xl flex items-center justify-center text-slate-400 hover:text-slate-600 transition-all relative"
+              className="w-10 h-10 bg-card-bg border border-border-default rounded-xl flex items-center justify-center text-secondary hover:text-heading transition-all relative"
               aria-label="Notifications"
             >
               <FiBell className="w-4 h-4" />
-              <span className="absolute top-3 right-3 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-white" />
+              <span className="absolute top-3 right-3 w-2 h-2 bg-rose-500 rounded-full ring-2 ring-card-bg" />
             </button>
 
             <NavLink
               to="profile"
-              className="flex items-center gap-3 border-l border-slate-200 pl-4 hover:opacity-80 transition-opacity"
+              className="flex items-center gap-3 border-l border-border-default pl-4 hover:opacity-80 transition-opacity"
             >
               <img
                 src="https://images.unsplash.com/photo-1559839734-2b71ea197ec2?auto=format&fit=crop&q=80&w=100"
@@ -225,10 +225,10 @@ export default function DashboardLayout() {
                 className="w-9 h-9 rounded-full object-cover ring-2 ring-primary/10"
               />
               <div className="flex flex-col text-left hidden sm:flex">
-                <span className="text-xs font-bold text-slate-900 flex items-center gap-1.5">
-                  {userDisplayName} <FiChevronDown className="w-3 h-3 text-slate-400" />
+                <span className="text-xs font-bold text-heading flex items-center gap-1.5">
+                  {userDisplayName} <FiChevronDown className="w-3 h-3 text-secondary" />
                 </span>
-                <span className="text-[9px] text-slate-400 font-bold uppercase tracking-wider">
+                <span className="text-[9px] text-secondary font-bold uppercase tracking-wider">
                   {userDepartment}
                 </span>
               </div>
@@ -237,7 +237,7 @@ export default function DashboardLayout() {
         </header>
 
         {/* NESTED ROUTES RENDER PLANE */}
-        <main className="flex-1 overflow-y-auto p-6 md:p-8 bg-slate-50/50">
+        <main className={`flex-1 overflow-y-auto bg-app-bg ${isChat ? 'p-0' : 'p-6 md:p-8'}`}>
           <Outlet />
         </main>
       </div>

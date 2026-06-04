@@ -1,11 +1,10 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { FiMessageSquare, FiSend, FiAlertCircle, FiActivity } from 'react-icons/fi';
-import { MdShield } from 'react-icons/md';
+import React, { useEffect, useRef, useState } from 'react';
+import { motion } from 'framer-motion';
+import { FiAlertCircle, FiArrowUp, FiPlus, FiSquare } from 'react-icons/fi';
 import { useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 
-function TypewriterText({ text, speed = 30, animate = false }) {
+function TypingText({ text, animate = false, speed = 12 }) {
   const [visibleText, setVisibleText] = useState('');
 
   useEffect(() => {
@@ -19,42 +18,59 @@ function TypewriterText({ text, speed = 30, animate = false }) {
     if (!text) return undefined;
 
     let index = 0;
-    const intervalId = window.setInterval(() => {
+    const timeoutId = window.setInterval(() => {
       index += 1;
       setVisibleText(text.slice(0, index));
 
       if (index >= text.length) {
-        window.clearInterval(intervalId);
+        window.clearInterval(timeoutId);
       }
     }, speed);
 
-    return () => window.clearInterval(intervalId);
-  }, [text, speed, animate]);
+    return () => window.clearInterval(timeoutId);
+  }, [text, animate, speed]);
 
   return <p className="whitespace-pre-wrap">{visibleText}</p>;
+}
+
+function ThinkingPulse() {
+  return (
+    <div className="flex items-center gap-1.5 py-1 text-secondary">
+      <span className="h-2 w-2 rounded-full bg-current animate-pulse" />
+      <span className="h-2 w-2 rounded-full bg-current animate-pulse [animation-delay:120ms]" />
+      <span className="h-2 w-2 rounded-full bg-current animate-pulse [animation-delay:240ms]" />
+    </div>
+  );
 }
 
 export default function ChatPanel() {
   const [searchParams, setSearchParams] = useSearchParams();
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
-  const [isThinking, setIsThinking] = useState(false);
   const [conversationId, setConversationId] = useState(searchParams.get('chatId') || '');
   const [isLoadingConversation, setIsLoadingConversation] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [animatedMessageId, setAnimatedMessageId] = useState(null);
 
-  const messagesEndRef = useRef(null);
   const textareaRef = useRef(null);
+  const scrollContainerRef = useRef(null);
+  const abortControllerRef = useRef(null);
   const activeConversationId = searchParams.get('chatId') || '';
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isThinking]);
+    const container = scrollContainerRef.current;
+    if (!container) return;
+
+    container.scrollTo({
+      top: container.scrollHeight,
+      behavior: 'smooth',
+    });
+  }, [messages, isGenerating]);
 
   useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto';
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-    }
+    if (!textareaRef.current) return;
+    textareaRef.current.style.height = 'auto';
+    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
   }, [inputMessage]);
 
   useEffect(() => {
@@ -62,17 +78,23 @@ export default function ChatPanel() {
       if (!activeConversationId) {
         setConversationId('');
         setMessages([]);
+        setAnimatedMessageId(null);
         return;
       }
 
       setIsLoadingConversation(true);
+      setIsGenerating(false);
+      abortControllerRef.current = null;
+
       try {
         const { data } = await api.get(`/chat/history/${activeConversationId}`);
         setConversationId(data.conversation.id);
         setMessages(data.conversation.messages || []);
-      } catch (err) {
+        setAnimatedMessageId(null);
+      } catch (error) {
         setConversationId('');
         setMessages([]);
+        setAnimatedMessageId(null);
       } finally {
         setIsLoadingConversation(false);
       }
@@ -81,221 +103,296 @@ export default function ChatPanel() {
     loadConversation();
   }, [activeConversationId]);
 
+  useEffect(() => () => abortControllerRef.current?.abort(), []);
+
+  const stopGeneration = () => {
+    abortControllerRef.current?.abort();
+    abortControllerRef.current = null;
+    setIsGenerating(false);
+    setAnimatedMessageId(null);
+
+    setMessages((prev) => {
+      const next = [...prev];
+
+      if (next[next.length - 1]?.isPending) {
+        next[next.length - 1] = {
+          ...next[next.length - 1],
+          text: 'Response stopped.',
+          isPending: false,
+          isStopped: true,
+        };
+      }
+
+      return next;
+    });
+  };
+
   const handleSendMessage = async (textToSend) => {
-    if (!textToSend.trim() || isThinking) return;
+    const prompt = textToSend.trim();
+    if (!prompt) return;
 
-    const optimisticUserMessage = {
-      _id: `temp-user-${Date.now()}`,
-      sender: 'human',
-      text: textToSend.trim(),
-      createdAt: new Date().toISOString(),
-    };
+    if (isGenerating) {
+      stopGeneration();
+    }
 
-    setMessages((prev) => [...prev, optimisticUserMessage]);
+    const userMessageId = `temp-user-${Date.now()}`;
+    const assistantMessageId = `temp-ai-${Date.now()}`;
+    const controller = new AbortController();
+    abortControllerRef.current = controller;
+
+    setAnimatedMessageId(null);
     setInputMessage('');
-    setIsThinking(true);
+    setIsGenerating(true);
+    setMessages((prev) => [
+      ...prev,
+      {
+        _id: userMessageId,
+        sender: 'human',
+        text: prompt,
+        createdAt: new Date().toISOString(),
+      },
+      {
+        _id: assistantMessageId,
+        sender: 'ai',
+        text: '',
+        isPending: true,
+        createdAt: new Date().toISOString(),
+      },
+    ]);
 
     try {
-      const { data } = await api.post('/chat/message', {
-        conversationId: conversationId || undefined,
-        question: textToSend.trim(),
-      });
+      const { data } = await api.post(
+        '/chat/message',
+        {
+          conversationId: conversationId || undefined,
+          question: prompt,
+        },
+        {
+          signal: controller.signal,
+        }
+      );
+
+      const responseMessages = data.conversation.messages || [];
+      const latestAiMessage = [...responseMessages].reverse().find(
+        (message) => message.sender === 'ai' && !message.isError
+      );
 
       setConversationId(data.conversationId);
-      setMessages(data.conversation.messages || []);
+      setMessages(responseMessages);
+      setAnimatedMessageId(latestAiMessage?._id || null);
       setSearchParams({ chatId: data.conversationId });
-    } catch (err) {
-      setMessages((prev) => [
-        ...prev,
-        {
-          _id: `temp-error-${Date.now()}`,
-          sender: 'ai',
-          text: err.response?.data?.message || 'Error interacting with core medical RAG runtime framework.',
-          isError: true,
-        },
-      ]);
+    } catch (error) {
+      if (error.code === 'ERR_CANCELED' || error.name === 'CanceledError') {
+        return;
+      }
+
+      setMessages((prev) => {
+        const next = prev.filter((message) => !message.isPending);
+        return [
+          ...next,
+          {
+            _id: `temp-error-${Date.now()}`,
+            sender: 'ai',
+            text: error.response?.data?.message || 'Unable to complete the RAG response right now.',
+            isError: true,
+          },
+        ];
+      });
     } finally {
-      setIsThinking(false);
+      if (abortControllerRef.current === controller) {
+        abortControllerRef.current = null;
+      }
+      setIsGenerating(false);
     }
   };
 
-  const handleKeyDown = (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
+  const handleKeyDown = (event) => {
+    if (event.key === 'Enter' && !event.shiftKey) {
+      event.preventDefault();
       handleSendMessage(inputMessage);
     }
   };
 
+  const quickPrompts = [
+    'Summarize the ICU sedation protocol.',
+    'Check the fallback steps for Medication X.',
+    'What are the post-operative care guidelines?',
+  ];
+
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 12 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.3 }}
-      className="max-w-4xl mx-auto h-full flex flex-col justify-between gap-5 min-h-0"
-    >
-      {isLoadingConversation ? (
-        <div className="flex-1 flex items-center justify-center rounded-2xl border border-slate-200 bg-white text-sm font-bold text-slate-500 shadow-sm">
-          Loading conversation...
-        </div>
-      ) : messages.length === 0 ? (
-        <div className="flex-1 flex flex-col items-center justify-center py-4">
-          <div className="w-full bg-white border border-slate-200/80 rounded-2xl p-8 shadow-sm flex flex-col items-center relative overflow-hidden">
-            <div className="absolute right-6 top-6 text-slate-100/60 select-none pointer-events-none">
-              <svg width="100" height="100" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M19 2H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 10h-4v4h-2v-4H7v-2h4V7h2v4h4v2z" />
-              </svg>
-            </div>
+    <div className="relative flex h-full min-h-0 flex-col overflow-hidden">
+      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-app-bg via-app-bg/80 to-transparent" />
 
-            <div className="w-32 h-32 bg-gradient-to-b from-primary/5 to-transparent rounded-full flex items-center justify-center mb-4">
-              <div className="w-24 h-24 bg-white border border-slate-200 shadow-md rounded-full flex flex-col items-center justify-center p-3 relative">
-                <div className="w-16 h-10 bg-primary rounded-2xl flex items-center justify-center gap-1.5 relative">
-                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                  <span className="w-2 h-2 bg-emerald-400 rounded-full animate-pulse" />
-                </div>
-                <div className="w-1.5 h-3 bg-primary rounded-t-full mt-0.5" />
-                <div className="w-4 h-4 bg-primary/10 rounded-full border border-primary/20 flex items-center justify-center mt-1">
-                  <span className="text-[8px] text-primary font-black">+</span>
+      <div
+        ref={scrollContainerRef}
+        className="relative flex-1 overflow-y-auto px-4 pb-40 pt-4 sm:px-6 lg:px-10"
+      >
+        {isLoadingConversation ? (
+          <div className="mx-auto flex min-h-[70vh] w-full max-w-4xl items-center justify-center text-sm font-semibold text-secondary">
+            Loading conversation...
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="mx-auto flex min-h-[70vh] w-full max-w-4xl flex-col items-center justify-center text-center">
+            <motion.div
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.35 }}
+              className="w-full max-w-3xl"
+            >
+              <div className="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-[28px] bg-[radial-gradient(circle_at_top,#ffffff,rgba(255,255,255,0.7)_35%,rgba(108,77,255,0.12)_100%)] shadow-[0_24px_60px_-28px_rgba(108,77,255,0.45)] ring-1 ring-white">
+                <div className="flex h-14 w-14 items-center justify-center rounded-[22px] bg-brand-gradient text-lg font-black text-white shadow-lg shadow-primary/20">
+                  A
                 </div>
               </div>
-            </div>
 
-            <h3 className="text-xl font-black text-slate-900 mb-1">
-              ASK<span className="text-primary">_ME</span>
-            </h3>
-            <p className="text-xs font-bold text-slate-400 tracking-wider uppercase mb-3">
-              Clinical Knowledge RAG Engine
-            </p>
-            <div className="mb-4 rounded-2xl rounded-tl-none border border-primary/15 bg-primary/5 px-5 py-3 text-center shadow-sm">
-              <p className="text-base font-bold text-slate-800">
-                Hey, how can I help you today?
+              <h1 className="text-4xl font-black tracking-tight text-heading sm:text-5xl">
+                ASK<span className="text-primary">_ME</span>
+              </h1>
+              <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-secondary sm:text-lg">
+                Ask long-form clinical questions, reopen history, and work in a full-page conversation flow without the chat feeling trapped inside a card.
               </p>
-            </div>
-            <p className="text-sm text-slate-500 max-w-md text-center leading-relaxed mb-8 font-medium">
-              Query verified hospital protocols, medical guidelines, medication policies, or therapeutic step-down actions instantly.
-            </p>
-{/* 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 w-full max-w-2xl">
-              {[
-                { title: 'Validated RAG', desc: 'Queries localized node documents', icon: FiMessageSquare },
-                { title: 'Evidence-Based', desc: 'Strict factual semantic scanning', icon: MdShield },
-                { title: 'Audit Logs', desc: 'Secure history parsing interface', icon: FiActivity },
-              ].map((feat, idx) => {
-                const FeatIcon = feat.icon;
-                return (
-                  <div key={idx} className="bg-slate-50/60 border border-slate-100 rounded-xl p-4 flex flex-col items-center text-center">
-                    <div className="w-9 h-9 rounded-xl bg-white border border-slate-200 flex items-center justify-center text-primary mb-2.5 shadow-sm">
-                      <FeatIcon className="w-4 h-4" />
-                    </div>
-                    <h4 className="text-xs font-bold text-slate-900 mb-0.5">{feat.title}</h4>
-                    <p className="text-[11px] text-slate-400 font-bold leading-normal">{feat.desc}</p>
-                  </div>
-                );
-              })}
-            </div> */}
-          </div>
-        </div>
-      ) : (
-        <div className="flex-1 bg-white rounded-2xl border border-slate-200 p-4 md:p-6 overflow-y-auto space-y-4 shadow-sm min-h-[300px]">
-          <AnimatePresence initial={false}>
-            {messages.map((msg, index) => (
-              <motion.div
-                key={msg._id || index}
-                initial={{ opacity: 0, y: 8 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-                className={`flex ${msg.sender === 'human' ? 'justify-end' : 'justify-start'}`}
-              >
-                <div
-                  className={`max-w-[80%] p-3.5 px-4 rounded-2xl shadow-sm text-sm leading-relaxed ${
-                    msg.sender === 'human'
-                      ? 'bg-primary text-white rounded-tr-none font-medium'
-                      : msg.isError
-                      ? 'bg-rose-50 border border-rose-200 text-rose-700 rounded-tl-none font-bold'
-                      : 'bg-slate-50 border border-slate-200 text-slate-800 rounded-tl-none font-medium'
-                  }`}
-                >
-                  {msg.sender === 'ai' && !msg.isError ? (
-                    <TypewriterText
-                      text={msg.text}
-                      animate={index === messages.length - 1 && !isThinking}
-                    />
-                  ) : (
-                    <p className="whitespace-pre-wrap">{msg.text}</p>
-                  )}
-                </div>
-              </motion.div>
-            ))}
-          </AnimatePresence>
 
-          {isThinking && (
-            <div className="flex justify-start">
-              <div className="bg-slate-50 border border-slate-200 p-3 px-4 rounded-2xl rounded-tl-none text-slate-500 text-xs font-bold flex items-center gap-2.5 shadow-sm">
-                <svg className="animate-spin h-4 w-4 text-primary" fill="none" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                </svg>
-                <span className="tracking-wide">Checking app DB, vector DB, similarity search, and LLM...</span>
+              <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+                {quickPrompts.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => handleSendMessage(prompt)}
+                    className="rounded-full border border-border-default bg-card-bg/90 px-4 py-2.5 text-sm font-semibold text-body shadow-sm transition-all hover:border-primary/30 hover:bg-primary/5 hover:text-primary"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        ) : (
+          <div className="mx-auto flex w-full max-w-5xl flex-col gap-10 pb-10">
+            {messages.map((msg, index) => {
+              const isUser = msg.sender === 'human';
+              const isError = Boolean(msg.isError);
+              const isPending = Boolean(msg.isPending);
+              const isStopped = Boolean(msg.isStopped);
+
+              return (
+                <motion.div
+                  key={msg._id || index}
+                  initial={{ opacity: 0, y: 14 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.22 }}
+                  className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'}`}
+                >
+                  <div className={`w-full ${isUser ? 'max-w-3xl' : 'max-w-4xl'}`}>
+                    {!isUser && (
+                      <div className="mb-3 flex items-center gap-3">
+                        <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-brand-gradient text-sm font-black text-white shadow-md shadow-primary/20">
+                          A
+                        </div>
+                        <div>
+                          <p className="text-sm font-bold text-heading">ASK_ME</p>
+                          <p className="text-xs font-medium text-secondary">
+                            {isPending ? 'Generating response' : isStopped ? 'Stopped' : 'Clinical assistant'}
+                          </p>
+                        </div>
+                      </div>
+                    )}
+
+                    <div
+                      className={`relative ${
+                        isUser
+                          ? 'ml-auto rounded-[28px] rounded-br-lg bg-slate-900 px-5 py-4 text-white shadow-[0_18px_50px_-24px_rgba(15,23,42,0.65)]'
+                          : isError
+                          ? 'rounded-[30px] rounded-tl-lg border border-rose-200 bg-rose-50 px-5 py-4 text-rose-700'
+                          : 'px-1 py-0 text-body'
+                      }`}
+                    >
+                      {isPending ? (
+                        <ThinkingPulse />
+                      ) : isUser ? (
+                        <p className="whitespace-pre-wrap text-[15px] font-medium leading-7">{msg.text}</p>
+                      ) : isError ? (
+                        <p className="whitespace-pre-wrap text-[15px] font-semibold leading-7">{msg.text}</p>
+                      ) : (
+                        <div className="text-[15px] leading-8 text-body">
+                          <TypingText text={msg.text} animate={msg._id === animatedMessageId} />
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-app-bg via-app-bg/95 to-transparent" />
+
+      <div className="absolute inset-x-0 bottom-0 px-4 pb-5 sm:px-6 lg:px-10">
+        <div className="mx-auto w-full max-w-4xl">
+          <form
+            onSubmit={(event) => {
+              event.preventDefault();
+              handleSendMessage(inputMessage);
+            }}
+            className="rounded-[32px] border border-border-default bg-card-bg/95 p-3 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.35)] backdrop-blur-xl"
+          >
+            <div className="flex items-end gap-3">
+              <button
+                type="button"
+                className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border-default bg-app-bg text-secondary transition-colors hover:border-border-default hover:bg-card-bg hover:text-heading"
+                aria-label="New chat tools"
+              >
+                <FiPlus className="h-4 w-4" />
+              </button>
+
+              <textarea
+                ref={textareaRef}
+                rows={1}
+                placeholder="Message ASK_ME"
+                value={inputMessage}
+                onChange={(event) => setInputMessage(event.target.value)}
+                onKeyDown={handleKeyDown}
+                className="max-h-52 min-h-[48px] flex-1 resize-none overflow-y-auto bg-transparent px-1 py-3 text-[15px] leading-7 text-heading outline-none placeholder:text-placeholder"
+              />
+
+              <button
+                type={isGenerating ? 'button' : 'submit'}
+                onClick={isGenerating ? stopGeneration : undefined}
+                disabled={!isGenerating && !inputMessage.trim()}
+                className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl text-white transition-all ${
+                  isGenerating
+                    ? 'bg-heading hover:opacity-90'
+                    : 'bg-primary shadow-lg shadow-primary/20 hover:bg-primary-dark disabled:cursor-not-allowed disabled:opacity-40'
+                }`}
+                aria-label={isGenerating ? 'Stop response' : 'Send message'}
+              >
+                {isGenerating ? <FiSquare className="h-4 w-4 fill-current" /> : <FiArrowUp className="h-4 w-4" />}
+              </button>
+            </div>
+
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-border-default px-1 pt-3">
+              <div className="flex flex-wrap gap-2">
+                {quickPrompts.map((prompt) => (
+                  <button
+                    key={prompt}
+                    type="button"
+                    onClick={() => handleSendMessage(prompt)}
+                    className="rounded-full bg-app-bg px-3 py-1.5 text-xs font-semibold text-secondary transition-colors hover:bg-primary/5 hover:text-primary"
+                  >
+                    {prompt}
+                  </button>
+                ))}
+              </div>
+
+              <div className="flex items-center gap-2 text-[11px] font-semibold text-secondary">
+                <FiAlertCircle className="h-3.5 w-3.5 shrink-0" />
+                <span>{isGenerating ? 'Generating. Press Stop to cancel this answer.' : 'Enter to send. Shift + Enter for a new line.'}</span>
               </div>
             </div>
-          )}
-          <div ref={messagesEndRef} />
-        </div>
-      )}
-
-      <div className="space-y-4 shrink-0">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleSendMessage(inputMessage);
-          }}
-          className="flex items-end gap-2 bg-white p-2 rounded-2xl border border-slate-200 shadow-sm focus-within:ring-4 focus-within:ring-primary/10 focus-within:border-primary transition-all duration-150"
-        >
-          <textarea
-            ref={textareaRef}
-            rows={1}
-            placeholder="Type clinical query or medication verification ask..."
-            value={inputMessage}
-            onChange={(e) => setInputMessage(e.target.value)}
-            onKeyDown={handleKeyDown}
-            className="flex-1 bg-transparent px-3 py-2.5 outline-none text-sm text-slate-800 placeholder-slate-400 font-medium resize-none max-h-[160px] min-h-[42px] leading-relaxed overflow-y-auto align-bottom"
-          />
-
-          <button
-            type="submit"
-            disabled={!inputMessage.trim() || isThinking}
-            className="w-11 h-11 bg-primary hover:bg-primary-dark text-white rounded-xl disabled:opacity-30 disabled:cursor-not-allowed transition-all flex items-center justify-center shrink-0 mb-0.5 shadow-md shadow-primary/10"
-          >
-            <FiSend className="w-4 h-4" />
-          </button>
-        </form>
-
-        <div className="space-y-2">
-          <p className="text-[11px] font-extrabold text-slate-400 tracking-wider uppercase">Quick Reference Starters:</p>
-          <div className="flex flex-wrap gap-2">
-            {[
-              'What is the ICU sedation protocol?',
-              'Verify fallback steps for Medication X',
-              'Post-operative therapeutic care guidelines',
-            ].map((chip, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => handleSendMessage(chip)}
-                className="bg-white border border-slate-200 hover:border-primary hover:bg-primary/5 text-slate-500 hover:text-primary px-3.5 py-2 rounded-xl text-xs font-bold tracking-wide shadow-sm transition-all duration-150"
-              >
-                {chip}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="bg-amber-50 border border-amber-200/60 rounded-xl p-3 flex items-center justify-center gap-2 text-[11px] text-amber-700 font-bold tracking-wide">
-          <FiAlertCircle className="w-4 h-4 text-amber-600 shrink-0" />
-          <span className="text-center">
-            Stored chats can be reopened from history and removed by the user whenever needed.
-          </span>
+          </form>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
