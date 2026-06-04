@@ -1,9 +1,14 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState, useContext } from 'react'; // Added useContext
 import { motion } from 'framer-motion';
 import { FiAlertCircle, FiArrowUp, FiPlus, FiSquare } from 'react-icons/fi';
 import { useSearchParams } from 'react-router-dom';
 import api from '../services/api';
+import { ChatContext } from '../context/ChatContext'; // Imported global context bridge
 
+/* ==========================================================================
+   SUB-COMPONENT: TypingText
+   Responsible for the typewriter effect when rendering a completed AI answer.
+   ========================================================================== */
 function TypingText({ text, animate = false, speed = 12 }) {
   const [visibleText, setVisibleText] = useState('');
 
@@ -33,6 +38,10 @@ function TypingText({ text, animate = false, speed = 12 }) {
   return <p className="whitespace-pre-wrap">{visibleText}</p>;
 }
 
+/* ==========================================================================
+   SUB-COMPONENT: ThinkingPulse
+   The loading/waiting animation (three blinking dots) displayed during generation.
+   ========================================================================== */
 function ThinkingPulse() {
   return (
     <div className="flex items-center gap-1.5 py-1 text-secondary">
@@ -43,18 +52,36 @@ function ThinkingPulse() {
   );
 }
 
+/* ==========================================================================
+   MAIN COMPONENT: ChatPanel
+   Main viewport managing state coordination, textareas, scrolling, and api calls.
+   ========================================================================== */
 export default function ChatPanel() {
   const [searchParams, setSearchParams] = useSearchParams();
-  const [messages, setMessages] = useState([]);
-  const [inputMessage, setInputMessage] = useState('');
-  const [conversationId, setConversationId] = useState(searchParams.get('chatId') || '');
+  
+  /* ==========================================================================
+     CORE SHIFT: CONNECT TO THE GLOBAL DATA LAYER
+     We replace the standalone useStates with values from the global ChatContext.
+     ========================================================================== */
+  const {
+    messages,
+    setMessages,
+    conversationId,
+    setConversationId,
+    inputMessage,
+    setInputMessage,
+    isGenerating,
+    setIsGenerating,
+    animatedMessageId,
+    setAnimatedMessageId,
+    abortControllerRef
+  } = useContext(ChatContext);
+
+  // Dynamic async loaders stay local to handle unique UI fetches independently
   const [isLoadingConversation, setIsLoadingConversation] = useState(false);
-  const [isGenerating, setIsGenerating] = useState(false);
-  const [animatedMessageId, setAnimatedMessageId] = useState(null);
 
   const textareaRef = useRef(null);
   const scrollContainerRef = useRef(null);
-  const abortControllerRef = useRef(null);
   const activeConversationId = searchParams.get('chatId') || '';
 
   useEffect(() => {
@@ -67,41 +94,85 @@ export default function ChatPanel() {
     });
   }, [messages, isGenerating]);
 
-  useEffect(() => {
-    if (!textareaRef.current) return;
-    textareaRef.current.style.height = 'auto';
-    textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-  }, [inputMessage]);
 
+
+
+  /* ==========================================================================
+     FIXED: MOUNT PROTECTION LAYER
+     Checks if global context holds data before running an accidental wipeout.
+     ========================================================================== */
   useEffect(() => {
     const loadConversation = async () => {
+      // Scenario A: No active dynamic query param exists in the URL routing track
       if (!activeConversationId) {
-        setConversationId('');
-        setMessages([]);
-        setAnimatedMessageId(null);
+        // ONLY reset state if context memory is entirely empty to allow a fresh workspace
+        if (messages.length === 0) {
+          setConversationId('');
+          setMessages([]);
+          setAnimatedMessageId(null);
+        }
         return;
       }
 
-      setIsLoadingConversation(true);
-      setIsGenerating(false);
-      abortControllerRef.current = null;
+      // Scenario B: URL has an ID, but it does NOT match what is currently loaded in context memory
+      if (activeConversationId !== conversationId) {
+        setIsLoadingConversation(true);
+        setIsGenerating(false);
+        abortControllerRef.current = null;
 
-      try {
-        const { data } = await api.get(`/chat/history/${activeConversationId}`);
-        setConversationId(data.conversation.id);
-        setMessages(data.conversation.messages || []);
-        setAnimatedMessageId(null);
-      } catch (error) {
-        setConversationId('');
-        setMessages([]);
-        setAnimatedMessageId(null);
-      } finally {
-        setIsLoadingConversation(false);
+        try {
+          const { data } = await api.get(`/chat/history/${activeConversationId}`);
+          setConversationId(data.conversation.id);
+          setMessages(data.conversation.messages || []);
+          setAnimatedMessageId(null);
+        } catch (error) {
+          setConversationId('');
+          setMessages([]);
+          setAnimatedMessageId(null);
+        } finally {
+          setIsLoadingConversation(false);
+        }
       }
     };
 
     loadConversation();
-  }, [activeConversationId]);
+  }, [activeConversationId, conversationId, messages.length]);
+
+  // useEffect(() => {
+  //   if (!textareaRef.current) return;
+  //   textareaRef.current.style.height = 'auto';
+  //   textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
+  // }, [inputMessage]);
+
+  // useEffect(() => {
+  //   const loadConversation = async () => {
+  //     if (!activeConversationId) {
+  //       setConversationId('');
+  //       setMessages([]);
+  //       setAnimatedMessageId(null);
+  //       return;
+  //     }
+
+  //     setIsLoadingConversation(true);
+  //     setIsGenerating(false);
+  //     abortControllerRef.current = null;
+
+  //     try {
+  //       const { data } = await api.get(`/chat/history/${activeConversationId}`);
+  //       setConversationId(data.conversation.id);
+  //       setMessages(data.conversation.messages || []);
+  //       setAnimatedMessageId(null);
+  //     } catch (error) {
+  //       setConversationId('');
+  //       setMessages([]);
+  //       setAnimatedMessageId(null);
+  //     } finally {
+  //       setIsLoadingConversation(false);
+  //     }
+  //   };
+
+  //   loadConversation();
+  // }, [activeConversationId]);
 
   useEffect(() => () => abortControllerRef.current?.abort(), []);
 
@@ -120,7 +191,7 @@ export default function ChatPanel() {
           text: 'Response stopped.',
           isPending: false,
           isStopped: true,
-        };
+        }
       }
 
       return next;
@@ -220,18 +291,36 @@ export default function ChatPanel() {
   ];
 
   return (
+    /* ==========================================================================
+       UI BLOCK: MAIN CONTAINER
+       The outer framework pinning the full chat interface to your layout.
+       ========================================================================== */
     <div className="relative flex h-full min-h-0 flex-col overflow-hidden">
+      
+      {/* UI DECORATION: Top Fade Overlay */}
       <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-app-bg via-app-bg/80 to-transparent" />
 
+      {/* ==========================================================================
+         UI BLOCK: VIEWPORT SCROLL WRAPPER
+         Contains the loading states, welcome screens, and rendering list of messages.
+         ========================================================================== */
       <div
         ref={scrollContainerRef}
         className="relative flex-1 overflow-y-auto px-4 pb-40 pt-4 sm:px-6 lg:px-10"
       >
         {isLoadingConversation ? (
+          /* ==========================================================================
+             UI SUB-BLOCK: ASYNC OVERLAY LOADING SKELETON
+             Shown strictly when picking an alternate conversation log from history.
+             ========================================================================== */
           <div className="mx-auto flex min-h-[70vh] w-full max-w-4xl items-center justify-center text-sm font-semibold text-secondary">
             Loading conversation...
           </div>
         ) : messages.length === 0 ? (
+          /* ==========================================================================
+             UI BLOCK: EMPTY STATE / WELCOME HERO INTERFACE
+             Displays logo graphics, headers, descriptions, and prompt buttons.
+             ========================================================================== */
           <div className="mx-auto flex min-h-[70vh] w-full max-w-4xl flex-col items-center justify-center text-center">
             <motion.div
               initial={{ opacity: 0, y: 16 }}
@@ -239,19 +328,25 @@ export default function ChatPanel() {
               transition={{ duration: 0.35 }}
               className="w-full max-w-3xl"
             >
+              {/* HERO DECORATION: Outer Radial Graphic Border Wrapper */}
               <div className="mx-auto mb-8 flex h-20 w-20 items-center justify-center rounded-[28px] bg-[radial-gradient(circle_at_top,#ffffff,rgba(255,255,255,0.7)_35%,rgba(108,77,255,0.12)_100%)] shadow-[0_24px_60px_-28px_rgba(108,77,255,0.45)] ring-1 ring-white">
+                {/* HERO DECORATION: Brand Avatar Icon */}
                 <div className="flex h-14 w-14 items-center justify-center rounded-[22px] bg-brand-gradient text-lg font-black text-white shadow-lg shadow-primary/20">
                   A
                 </div>
               </div>
 
+              {/* HERO TYPOGRAPHY: Primary Title Branding Heading */}
               <h1 className="text-4xl font-black tracking-tight text-heading sm:text-5xl">
                 ASK<span className="text-primary">_ME</span>
               </h1>
+              
+              {/* HERO TYPOGRAPHY: Subtitle Description */}
               <p className="mx-auto mt-4 max-w-2xl text-base leading-7 text-secondary sm:text-lg">
                 Ask long-form clinical questions, reopen history, and work in a full-page conversation flow without the chat feeling trapped inside a card.
               </p>
 
+              {/* HERO QUICK CALL TO ACTIONS: Central Suggestion Chip Grid Layout */}
               <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
                 {quickPrompts.map((prompt) => (
                   <button
@@ -267,6 +362,10 @@ export default function ChatPanel() {
             </motion.div>
           </div>
         ) : (
+          /* ==========================================================================
+             UI BLOCK: CORE CHAT FEED MESSAGES LIST
+             Iterates through all mapped array records generating user or system bubbles.
+             ========================================================================== */
           <div className="mx-auto flex w-full max-w-5xl flex-col gap-10 pb-10">
             {messages.map((msg, index) => {
               const isUser = msg.sender === 'human';
@@ -275,6 +374,7 @@ export default function ChatPanel() {
               const isStopped = Boolean(msg.isStopped);
 
               return (
+                /* Motion Layout Frame aligning structural alignments */
                 <motion.div
                   key={msg._id || index}
                   initial={{ opacity: 0, y: 14 }}
@@ -282,12 +382,17 @@ export default function ChatPanel() {
                   transition={{ duration: 0.22 }}
                   className={`flex w-full ${isUser ? 'justify-end' : 'justify-start'}`}
                 >
+                  {/* Sizing box limiting maximum inner content boundaries */}
                   <div className={`w-full ${isUser ? 'max-w-3xl' : 'max-w-4xl'}`}>
+                    
+                    {/* UI METADATA PANEL: Assistant Title Headings Bar (Skipped for User) */}
                     {!isUser && (
                       <div className="mb-3 flex items-center gap-3">
+                        {/* Assistant Avatar Badge */}
                         <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-brand-gradient text-sm font-black text-white shadow-md shadow-primary/20">
                           A
                         </div>
+                        {/* Meta Labels Text Container */}
                         <div>
                           <p className="text-sm font-bold text-heading">ASK_ME</p>
                           <p className="text-xs font-medium text-secondary">
@@ -297,6 +402,10 @@ export default function ChatPanel() {
                       </div>
                     )}
 
+                    {/* ==========================================================================
+                       UI COMPONENT BLOCK: INDIVIDUAL MESSAGE BUBBLE SKINS
+                       Applies styling variations based on system states (User, Pending, AI, or Error).
+                       ========================================================================== */}
                     <div
                       className={`relative ${
                         isUser
@@ -306,13 +415,17 @@ export default function ChatPanel() {
                           : 'px-1 py-0 text-body'
                       }`}
                     >
+                      {/* BUBBLE CONDITION 1: Pending Generator Loader */}
                       {isPending ? (
                         <ThinkingPulse />
                       ) : isUser ? (
+                        /* BUBBLE CONDITION 2: User Prompt Text Frame */
                         <p className="whitespace-pre-wrap text-[15px] font-medium leading-7">{msg.text}</p>
                       ) : isError ? (
+                        /* BUBBLE CONDITION 3: System Pipeline Error Alert Skin */
                         <p className="whitespace-pre-wrap text-[15px] font-semibold leading-7">{msg.text}</p>
                       ) : (
+                        /* BUBBLE CONDITION 4: Standard AI Response Text Area with streaming */
                         <div className="text-[15px] leading-8 text-body">
                           <TypingText text={msg.text} animate={msg._id === animatedMessageId} />
                         </div>
@@ -325,11 +438,17 @@ export default function ChatPanel() {
           </div>
         )}
       </div>
-
+}
+      {/* UI DECORATION: Bottom Gradient Overlay mask */}
       <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-app-bg via-app-bg/95 to-transparent" />
 
+      {/* ==========================================================================
+         UI BLOCK: FIXED DECK INPUT CONSOLE STRIP
+         Pins the active submission form elements securely above the viewport mask.
+         ========================================================================== */}
       <div className="absolute inset-x-0 bottom-0 px-4 pb-5 sm:px-6 lg:px-10">
         <div className="mx-auto w-full max-w-4xl">
+          {/* Main Action Input Panel Structure */}
           <form
             onSubmit={(event) => {
               event.preventDefault();
@@ -337,7 +456,10 @@ export default function ChatPanel() {
             }}
             className="rounded-[32px] border border-border-default bg-card-bg/95 p-3 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.35)] backdrop-blur-xl"
           >
+            {/* INPUT ROWS BLOCK: Text Box and Peripheral Action Buttons */}
             <div className="flex items-end gap-3">
+              
+              {/* INPUT ELEMENT: Attachment / Tool Feature Button Trigger */}
               <button
                 type="button"
                 className="flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl border border-border-default bg-app-bg text-secondary transition-colors hover:border-border-default hover:bg-card-bg hover:text-heading"
@@ -346,6 +468,7 @@ export default function ChatPanel() {
                 <FiPlus className="h-4 w-4" />
               </button>
 
+              {/* INPUT ELEMENT: Autogrow Dynamic Input Textarea */}
               <textarea
                 ref={textareaRef}
                 rows={1}
@@ -356,6 +479,7 @@ export default function ChatPanel() {
                 className="max-h-52 min-h-[14px] flex-1 resize-none overflow-y-auto bg-transparent px-1 py-3 text-[15px] leading-7 text-heading outline-none placeholder:text-placeholder"
               />
 
+              {/* INPUT ELEMENT: Unified State Action Button (Submit Command vs Abort Generation) */}
               <button
                 type={isGenerating ? 'button' : 'submit'}
                 onClick={isGenerating ? stopGeneration : undefined}
@@ -371,8 +495,14 @@ export default function ChatPanel() {
               </button>
             </div>
 
+            {/* ==========================================================================
+               UI SUB-BLOCK: CONSOLE FOOTER TOOLS BAR
+               Houses inline chip buttons and active operational warning status notes.
+               ========================================================================== */}
             <div className="mt-3 flex flex-wrap items-center justify-between gap-3 border-t border-border-default px-1 pt-3">
-              <div className="flex flex-wrap gap-2">
+              
+              {/* FOOTER CONTROLS: Quick Action Inline Suggestion Chips List */}
+              {/* <div className="flex flex-wrap gap-2">
                 {quickPrompts.map((prompt) => (
                   <button
                     key={prompt}
@@ -383,8 +513,9 @@ export default function ChatPanel() {
                     {prompt}
                   </button>
                 ))}
-              </div>
+              </div> */}
 
+              {/* FOOTER INFOBAR: Operational Keyboard Hints and Engine Warnings */}
               <div className="flex items-center gap-2 text-[11px] font-semibold text-secondary">
                 <FiAlertCircle className="h-3.5 w-3.5 shrink-0" />
                 <span>{isGenerating ? 'Generating. Press Stop to cancel this answer.' : 'Enter to send. Shift + Enter for a new line.'}</span>

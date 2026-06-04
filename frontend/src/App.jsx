@@ -1,6 +1,7 @@
 import React, { useContext } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthContext, AuthProvider } from './context/AuthContext';
+import { ChatProvider } from './context/ChatContext'; // Integrated the persistent context provider layer
 import { env } from './config/env';
 import LoginView from './views/LoginView';
 import RegisterView from './views/Registerview';
@@ -44,55 +45,66 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <Routes>
-          <Route
-            path={login}
-            element={
-              <PublicRoute>
-                <LoginView />
-              </PublicRoute>
-            }
-          />
-          <Route
-            path={register}
-            element={
-              <PublicRoute>
-                <RegisterView />
-              </PublicRoute>
-            }
-          />
-
-          <Route
-            path={chat}
-            element={
-              <ProtectedRoute>
-                <DashboardLayout />
-              </ProtectedRoute>
-            }
-          >
-            <Route index element={<ChatPanel />} />
-            <Route path="profile" element={<ProfileView />} />
-            <Route path="settings" element={<SettingView />} />
+      {/* ==========================================================================
+         UI INFRASTRUCTURE WRAPPER: ChatProvider
+         Placed right inside AuthProvider so the shared global chat context 
+         stays completely alive across DashboardLayout, SettingsView, and ChatPanel,
+         preventing your chat states from unmounting when navigating routes.
+         ========================================================================== 
+      */}
+      <ChatProvider>
+        <BrowserRouter>
+          <Routes>
             <Route
-              path="upload"
+              path={login}
               element={
-                <PlaceholderPanel
-                  title="Upload Data"
-                  description="Document upload will connect to the knowledge base API in a later milestone."
-                />
+                <PublicRoute>
+                  <LoginView />
+                </PublicRoute>
               }
             />
-            <Route path="history" element={<HistoryView />} />
-          </Route>
+            <Route
+              path={register}
+              element={
+                <PublicRoute>
+                  <RegisterView />
+                </PublicRoute>
+              }
+            />
 
-          {/* Legacy paths → nested dashboard routes */}
-          <Route path="/profile" element={<Navigate to={`${chat}/profile`} replace />} />
-          <Route path="/settings" element={<Navigate to={`${chat}/settings`} replace />} />
+            {/* Dashboard Routing Matrix Shell */}
+            <Route
+              path={chat}
+              element={
+                <ProtectedRoute>
+                  <DashboardLayout />
+                </ProtectedRoute>
+              }
+            >
+              <Route index element={<ChatPanel />} />
+              <Route path="profile" element={<ProfileView />} />
+              <Route path="settings" element={<SettingView />} />
+              <Route
+                path="upload"
+                element={
+                  <PlaceholderPanel
+                    title="Upload Data"
+                    description="Document upload will connect to the knowledge base API in a later milestone."
+                  />
+                }
+              />
+              <Route path="history" element={<HistoryView />} />
+            </Route>
 
-          <Route path="*" element={<Navigate to={login} replace />} />
-        </Routes>
-      </BrowserRouter>
+            {/* Legacy paths → nested dashboard routes */}
+            <Route path="/profile" element={<Navigate to={`${chat}/profile`} replace />} />
+            <Route path="/settings" element={<Navigate to={`${chat}/settings`} replace />} />
+
+            {/* Universal Fallback Route Redirection */}
+            <Route path="*" element={<Navigate to={login} replace />} />
+          </Routes>
+        </BrowserRouter>
+      </ChatProvider>
     </AuthProvider>
   );
 }
