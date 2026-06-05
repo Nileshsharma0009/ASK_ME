@@ -11,12 +11,39 @@ import ProfileView from './views/ProfileView';
 import SettingView from './views/SettingView';
 import HistoryView from './views/HistoryView';
 import PlaceholderPanel from './views/PlaceholderPanel';
+import { motion } from 'framer-motion';
 
 function AuthLoading() {
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-950 text-slate-400 font-medium tracking-wide">
-      Loading...
-    </div>
+    <motion.div 
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      exit={{ opacity: 0 }}
+      className="min-h-screen flex flex-col items-center justify-center bg-app-bg text-secondary"
+    >
+      {/* Brand Spinner */}
+      <div className="relative w-16 h-16 mb-6">
+        <motion.div
+          animate={{ rotate: 360 }}
+          transition={{ duration: 1.5, repeat: Infinity, ease: "linear" }}
+          className="w-full h-full border-4 border-primary/20 border-t-primary rounded-full"
+        />
+        <div className="absolute inset-0 flex items-center justify-center">
+          <span className="text-[10px] font-black text-primary tracking-widest uppercase">
+            ASK
+          </span>
+        </div>
+      </div>
+
+      {/* Pulsing Status Text */}
+      <motion.p 
+        animate={{ opacity: [0.5, 1, 0.5] }}
+        transition={{ duration: 2, repeat: Infinity }}
+        className="text-xs font-bold tracking-[0.2em] uppercase text-heading"
+      >
+        loading...
+      </motion.p>
+    </motion.div>
   );
 }
 

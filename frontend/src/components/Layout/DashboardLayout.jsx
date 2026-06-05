@@ -169,34 +169,48 @@ export default function DashboardLayout() {
       </motion.aside>
 
       {/* CORE CONTENT WORKSPACE */}
-      <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
-        <header className="h-20 bg-card-bg/80 backdrop-blur-md px-6 md:px-8 border-b border-border-default flex items-center justify-between shrink-0 z-30">
-          <div className="flex items-center gap-4">
-            <button className="md:hidden p-2 text-heading" onClick={() => setIsMobileMenuOpen(true)}>
-              <FiMenu className="w-6 h-6" />
-            </button>
-            <AnimatePresence mode="wait">
-              <motion.div key={segment} initial={{ opacity: 0, x: -8 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: 8 }} transition={{ duration: 0.15 }} className="text-lg font-black text-heading">
-                {typeof headerTitle === 'function' ? headerTitle(userDisplayName) : headerTitle}
-              </motion.div>
-            </AnimatePresence>
-          </div>
+    <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
+  {/* REMOVED: backdrop-blur-md, and shadow-sm (if it was there) */}
+  {/* CHANGED: bg-card-bg/80 to just bg-app-bg for a seamless look */}
+<header className="h-20 bg-app-bg border-b border-border-default/30 px-6 md:px-8 flex items-center justify-between shrink-0 z-30">
+    <div className="flex items-center gap-4">
+      <button className="md:hidden p-2 text-heading" onClick={() => setIsMobileMenuOpen(true)}>
+        <FiMenu className="w-6 h-6" />
+      </button>
+      <AnimatePresence mode="wait">
+        <motion.div 
+          key={segment} 
+          initial={{ opacity: 0, x: -8 }} 
+          animate={{ opacity: 1, x: 0 }} 
+          exit={{ opacity: 0, x: 8 }} 
+          transition={{ duration: 0.15 }} 
+          className="text-lg font-black text-heading"
+        >
+          {typeof headerTitle === 'function' ? headerTitle(userDisplayName) : headerTitle}
+        </motion.div>
+      </AnimatePresence>
+    </div>
 
-          <div className="flex items-center gap-4">
-            <NavLink to="profile" className="flex items-center gap-3 border-l border-border-default pl-4 hover:opacity-80 transition-opacity">
-              <img src={auth?.user?.profileImage || "/1.png"} alt="Avatar" className="w-9 h-9 rounded-full object-cover ring-2 ring-primary/10" />
-              <div className="flex flex-col text-left hidden sm:flex">
-                <span className="text-xs font-bold text-heading flex items-center gap-1.5">{userDisplayName} <FiChevronDown className="w-3 h-3 text-secondary" /></span>
-                <span className="text-[9px] text-secondary font-bold uppercase tracking-wider">{userDepartment}</span>
-              </div>
-            </NavLink>
-          </div>
-        </header>
+    <div className="flex items-center gap-4">
+      <NavLink to="profile" className="flex items-center gap-3 border-l border-border-default/30 pl-4 hover:opacity-80 transition-opacity">
+        {/* REMOVED: ring-2 ring-primary/10 (This often creates a faint white halo) */}
+        <img 
+          src={auth?.user?.profileImage || "/1.png"} 
+          alt="Avatar" 
+          className="w-9 h-9 rounded-full object-cover" 
+        />
+        <div className="flex flex-col text-left hidden sm:flex">
+          <span className="text-xs font-bold text-heading flex items-center gap-1.5">{userDisplayName} <FiChevronDown className="w-3 h-3 text-secondary" /></span>
+          <span className="text-[9px] text-secondary font-bold uppercase tracking-wider">{userDepartment}</span>
+        </div>
+      </NavLink>
+    </div>
+  </header>
 
-        <main className={`flex-1 overflow-y-auto bg-app-bg ${isChat ? 'p-0' : 'p-6 md:p-8'}`}>
-          <Outlet />
-        </main>
-      </div>
+  <main className={`flex-1 overflow-y-auto bg-app-bg ${isChat ? 'p-0' : 'p-6 md:p-8'}`}>
+    <Outlet />
+  </main>
+</div>
     </div>
   );
 }

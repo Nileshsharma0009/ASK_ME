@@ -390,7 +390,7 @@ export default function ChatPanel() {
               event.preventDefault();
               handleSendMessage(inputMessage);
             }}
-            className="rounded-[32px] border border-border-default bg-card-bg/95 p-3 shadow-[0_30px_80px_-35px_rgba(15,23,42,0.35)] backdrop-blur-xl"
+            className="rounded-[32px] border border-border-default bg-card-bg/95 p-3 bg-card-bg "
           >
             <div className="flex items-end gap-3">
               <button
