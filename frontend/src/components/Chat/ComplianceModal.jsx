@@ -1,10 +1,13 @@
 // frontend/src/components/ComplianceModal.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiShield, FiAlertTriangle, FiCheckCircle, FiXCircle, FiGlobe, FiCheck, FiLoader } from 'react-icons/fi';
+import { FiShield, FiAlertTriangle, FiXCircle, FiGlobe, FiCheck, FiLoader } from 'react-icons/fi';
 import api from '../../services/api';
+import { AuthContext } from '../../context/AuthContext'; // Import added
 
 export default function ComplianceModal({ isOpen, onClose }) {
+  const auth = useContext(AuthContext); // Context initialized
+  
   // 1. Core State Managers
   const [currentLang, setCurrentLang] = useState('en');
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
@@ -17,7 +20,6 @@ export default function ComplianceModal({ isOpen, onClose }) {
   // 2. Fetch and Reset Lifecycles
   useEffect(() => {
     if (!isOpen) {
-      // Clear legacy visual selections on close to keep next mounts clean
       setIsLangMenuOpen(false);
       return;
     }
@@ -37,20 +39,38 @@ export default function ComplianceModal({ isOpen, onClose }) {
     fetchComplianceConfig();
   }, [isOpen]);
 
-  // Resolve data points dynamically from the backend state array
+  // Resolve data points dynamically
   const languagesList = backendConfig?.languagesList || [];
   const text = backendConfig?.contentLedger?.[currentLang];
   const activeLangNative = languagesList.find(l => l.code === currentLang)?.native;
 
-  const handleAcceptAndClose = () => {
-    if (remindPreference === 'never') {
-      localStorage.setItem('ask_me_dismiss_compliance', 'true');
-      sessionStorage.removeItem('ask_me_session_compliance_viewed');
-    } else {
-      localStorage.removeItem('ask_me_dismiss_compliance');
-      sessionStorage.setItem('ask_me_session_compliance_viewed', 'true');
+  // FIXED: Logic for DB persistence and context sync
+  const handleAcceptAndClose = async () => {
+    try {
+      if (remindPreference === 'never') {
+        const userId = auth?.user?.id || auth?.user?._id;
+        if (userId) {
+          const baseUrl = import.meta.env.VITE_BACKEND_URL;
+          
+          // 1. Database mein permanent mute set karein
+          await api.patch(`${baseUrl}/auth/mute-compliance/${userId}`);
+          
+          // 2. AuthContext state ko update karein taaki ChatPanel ko turant update mile
+          if (auth?.updateUser) {
+            auth.updateUser({ ...auth.user, hasMutedCompliance: true });
+          } else if (auth?.user) {
+            auth.user.hasMutedCompliance = true;
+          }
+        }
+      } else {
+        // Tab-Session fallback logic
+        sessionStorage.setItem('ask_me_session_compliance_viewed', 'true');
+      }
+    } catch (err) {
+      console.error("Compliance configuration update failed:", err);
+    } finally {
+      onClose();
     }
-    onClose();
   };
 
   // 3. Animation Presets
@@ -81,13 +101,12 @@ export default function ComplianceModal({ isOpen, onClose }) {
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 perspective-[1000px]">
           
-          {/* BACKGROUND BLUR OVERLAY */}
+          {/* BACKGROUND BLUR OVERLAY - Removed onClick to prevent accidental closure */}
           <motion.div 
             variants={overlayVariants}
             initial="hidden"
             animate="visible"
             exit="exit"
-            onClick={handleAcceptAndClose}
             className="absolute inset-0 bg-slate-900/40 backdrop-blur-lg"
           />
 
@@ -100,21 +119,17 @@ export default function ComplianceModal({ isOpen, onClose }) {
             className="bg-white border border-border-default/90 w-full max-w-2xl rounded-[32px] shadow-modal shadow-primary/5 relative z-10 overflow-hidden flex flex-col min-h-[320px] max-h-[85vh] transform-gpu selection:bg-primary/20"
           >
             {loadingConfig ? (
-              /* LOADING SKELETON LAYER */
               <div className="flex-1 flex flex-col items-center justify-center gap-3 p-8 text-secondary">
                 <FiLoader className="w-8 h-8 text-primary animate-spin" />
                 <span className="text-xs font-bold tracking-wide font-sans">Syncing Security Matrix Parameters...</span>
               </div>
             ) : !text ? (
-              /* ERROR BOUNDARY ENVELOPE */
               <div className="flex-1 flex flex-col items-center justify-center p-8 text-center text-error">
                 <FiAlertTriangle className="w-8 h-8 mb-2 animate-bounce" />
                 <span className="text-sm font-black font-sans">Configuration Sync Error Encountered.</span>
               </div>
             ) : (
-              /* NATIVE DATA CONSOLE CANVAS */
               <>
-                {/* HEADER ELEMENT COMPARTMENT */}
                 <div className="p-6 bg-gradient-to-r from-primary/5 via-transparent to-transparent border-b border-border-default flex items-center justify-between gap-4 shrink-0 relative z-20">
                   <div className="flex items-center gap-3.5">
                     <div className="w-11 h-11 bg-primary text-white rounded-2xl flex items-center justify-center shadow-md shadow-primary/20 shrink-0">
@@ -126,7 +141,6 @@ export default function ComplianceModal({ isOpen, onClose }) {
                     </div>
                   </div>
 
-                  {/* SELECT DROP-DOWN ELEMENT TRIGGER */}
                   <div className="relative">
                     <motion.button
                       whileHover={{ scale: 1.02 }}
@@ -169,7 +183,6 @@ export default function ComplianceModal({ isOpen, onClose }) {
                   </div>
                 </div>
 
-                {/* SCROLLABLE INTERIOR SUBSTRATE SHEET */}
                 <div className="p-6 overflow-y-auto space-y-6 text-sm text-body font-medium leading-relaxed bg-white custom-scrollbar">
                   <motion.div variants={contentBlockVariants} className="space-y-1.5 group">
                     <div className="flex items-center gap-2.5 text-heading font-black text-xs uppercase tracking-widest font-sans">
@@ -212,7 +225,6 @@ export default function ComplianceModal({ isOpen, onClose }) {
                   </motion.div>
                 </div>
 
-                {/* FOOTER CONTROLS BASE PANEL */}
                 <div className="p-6 border-t border-border-default bg-slate-50 flex flex-col md:flex-row items-center justify-between gap-5 shrink-0 relative z-20">
                   <div className="flex flex-col gap-2.5 w-full md:w-auto">
                     <label className="flex items-center gap-3 cursor-pointer select-none text-xs font-bold text-secondary group">

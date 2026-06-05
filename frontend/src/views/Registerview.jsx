@@ -39,14 +39,19 @@ export default function RegisterView() {
       setError('Full name must be at least 2 characters long');
       return;
     }
+    // FIXED: Enforce name constraint (< 30)
+    if (trimmedName.length >= 30) {
+      setError('Full name must be less than 30 characters');
+      return;
+    }
     if (!/^[a-zA-Z\s]+$/.test(trimmedName)) {
       setError('Full name can only contain alphabetical letters and spaces');
       return;
     }
 
-    // 2. Strict Email limit validation checks
-    if (cleanEmail.length > 50) {
-      setError('Email address cannot exceed 50 characters');
+    // 2. Strict Email limit validation checks (< 30)
+    if (cleanEmail.length >= 30) {
+      setError('Email address must be less than 30 characters');
       return;
     }
 
@@ -57,10 +62,10 @@ export default function RegisterView() {
     }
 
     /* ==========================================================================
-       STRICT SECURITY CHECK: REGISTER COMPLEXITY & LENGTH WINDOW
+       STRICT SECURITY CHECK: REGISTER COMPLEXITY & LENGTH WINDOW (< 12)
        ========================================================================== */
-    if (formData.password.length > 12 ) {
-      setError('Password must be less than 12 character');
+    if (formData.password.length >= 12) {
+      setError('Password must be less than 12 characters');
       return;
     }
 
@@ -77,8 +82,10 @@ export default function RegisterView() {
 
     setLoading(true);
     try {
-      const baseUrl = import.meta.env.VITE_BACKEND_URL;
+      // Clear legacy session tokens automatically on a fresh registration stream entry
+      sessionStorage.removeItem('ask_me_session_compliance_viewed');
 
+      const baseUrl = import.meta.env.VITE_BACKEND_URL;
       await api.post(`${baseUrl}/auth/register`, {
         name: trimmedName,
         email: cleanEmail,
@@ -174,7 +181,7 @@ export default function RegisterView() {
           {success && (
             <motion.div className="mb-5 p-3.5 bg-success/10 border border-success/20 text-success rounded-input text-xs font-semibold flex items-center gap-2" variants={itemVariants} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
               <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-              {error || success}
+              {success}
             </motion.div>
           )}
 

@@ -22,6 +22,11 @@ import  mongoose from "mongoose" ;
 
         
         },
+
+        hasMutedCompliance: { 
+            type: Boolean,
+             default: false 
+            },
     },
     {timestamps :true}
  )

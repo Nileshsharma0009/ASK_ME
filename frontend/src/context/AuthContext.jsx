@@ -1,4 +1,5 @@
-  import React, { createContext, useState, useEffect } from 'react';
+// frontend/src/context/AuthContext.jsx
+import React, { createContext, useState, useEffect } from 'react';
 
 export const AuthContext = createContext(null);
 
@@ -51,6 +52,21 @@ export function AuthProvider({ children }) {
     setToken(null);
     localStorage.removeItem('user');
     localStorage.removeItem('token');
+    // Tab session security cleanup
+    sessionStorage.removeItem('ask_me_session_compliance_viewed');
+  };
+
+  /* ==========================================================================
+     FIXED: PERSISTENT PROFILE SYNCHRONIZATION HELPER
+     State update hone par yeh localStorage ko bhi update karega taaki 
+     page refresh hone par data roll-back na ho.
+     ========================================================================== */
+  const updateUser = (newUserData) => {
+    setUser(newUserData);
+    // Agar user logged in hai aur uski active cache stored hai, toh sync karein
+    if (localStorage.getItem('user')) {
+      localStorage.setItem('user', JSON.stringify(newUserData));
+    }
   };
 
   const isAuthenticated = !!user && !!token;
@@ -66,6 +82,7 @@ export function AuthProvider({ children }) {
         logout,
         setUser,
         setToken,
+        updateUser, // ◄ Exposed to the application layer layout grids
       }}
     >
       {children}

@@ -5,6 +5,7 @@ import { FiAlertCircle, FiArrowUp, FiPlus, FiSquare } from 'react-icons/fi';
 import { useSearchParams } from 'react-router-dom';
 import api from '../services/api';
 import { ChatContext } from '../context/ChatContext'; 
+import { AuthContext } from '../context/AuthContext'; // ◄ FIXED: Import AuthContext here
 import ComplianceModal from '../components/Chat/ComplianceModal';
 
 function TypingText({ text, animate = false, speed = 12 }) {
@@ -48,7 +49,9 @@ function ThinkingPulse() {
 export default function ChatPanel() {
   const [searchParams, setSearchParams] = useSearchParams();
   
-  // Destructured compliance controllers from global shared data layer
+  // ◄ FIXED: Consume AuthContext directly right here to fix the 'auth is not defined' crash
+  const auth = useContext(AuthContext);
+
   const {
     messages,
     setMessages,
@@ -60,8 +63,8 @@ export default function ChatPanel() {
     setIsGenerating,
     animatedMessageId,
     setAnimatedMessageId,
-    isComplianceOpen,     // ◄ Linked to context
-    setIsComplianceOpen,  // ◄ Linked to context
+    isComplianceOpen,     
+    setIsComplianceOpen,  
     abortControllerRef
   } = useContext(ChatContext);
 
@@ -118,17 +121,17 @@ export default function ChatPanel() {
   }, [activeConversationId, conversationId, messages.length]);
 
   // 3. FIXED CRITICAL SESSION GATEWAY HOOK
-  // Runs immediately when workspace tracks ready on login view entry
   useEffect(() => {
-    const isPermanentlyMuted = localStorage.getItem('ask_me_dismiss_compliance') === 'true';
+    // Safely reads from your real database token structure now
+    const userHasPermanentlyMuted = auth?.user?.hasMutedCompliance === true;
     const isAcknowledgedThisSession = sessionStorage.getItem('ask_me_session_compliance_viewed') === 'true';
 
-    if (isPermanentlyMuted) {
+    if (userHasPermanentlyMuted) {
       setIsComplianceOpen(false);
     } else if (!isAcknowledgedThisSession) {
-      setIsComplianceOpen(true); // Lock view screen open
+      setIsComplianceOpen(true); 
     }
-  }, [setIsComplianceOpen]);
+  }, [setIsComplianceOpen, activeConversationId, messages.length, auth?.user?.hasMutedCompliance]);
 
   useEffect(() => () => abortControllerRef.current?.abort(), []);
 
@@ -439,7 +442,7 @@ export default function ChatPanel() {
         </div>
       </div>
 
-      {/* GLOBAL MOUNTED PORTAL ANCHOR */}
+      {/* COMPLIANCE TERMS PORTAL */}
       <ComplianceModal 
         isOpen={isComplianceOpen} 
         onClose={() => setIsComplianceOpen(false)} 

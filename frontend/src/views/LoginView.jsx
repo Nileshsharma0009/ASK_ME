@@ -18,50 +18,6 @@ export default function LoginView() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  // const handleLogin = async (e) => {
-  //   e.preventDefault();
-  //   setLoading(true);
-  //   setError('');
-
-  //   const cleanEmail = username.trim();
-
-  //   /* ==========================================================================
-  //      STRICT SECURITY CHECK: COMPLIANCE INPUT VALIDATION ENGINE
-  //      ========================================================================== */
-  //   if (cleanEmail.length > 30) {
-  //     setError('Username/Email cannot exceed 50 characters');
-  //     setLoading(false);
-  //     return;
-  //   }
-
-  //   if (password.length < 12 ) {
-  //     setError('Password must be less than 12 ');
-  //     setLoading(false);
-  //     return;
-  //   }
-
-  //   try {
-  //     const baseUrl = import.meta.env.VITE_BACKEND_URL; 
-      
-  //     const { data } = await api.post(`${baseUrl}/auth/login`, {
-  //       email: cleanEmail,
-  //       password,
-  //     });
-
-  //     // Clear old session compliance banners completely right on validation success
-  //     sessionStorage.removeItem('ask_me_session_compliance_viewed');
-
-  //     auth.login(data.user, data.token, { persist: rememberMe });
-  //     if (env.postLoginPath) {
-  //       navigate(env.postLoginPath, { replace: true });
-  //     }
-  //   } catch (err) {
-  //     setError(err.response?.data?.message || 'Login failed');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
-
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -71,32 +27,31 @@ export default function LoginView() {
 
     /* ==========================================================================
        STRICT SECURITY CHECK: COMPLIANCE INPUT VALIDATION ENGINE
-       Blocks any requests from hitting the network layer if bounds are crossed.
        ========================================================================== */
-    // 1. Enforces absolute ceiling for username/email payload fields (< 30)
     if (cleanEmail.length >= 30) {
-      setError('Username/Email must be less than 30 characters'); // ◄ FIXED: Aligned error text string string constants
+      setError('Username/Email must be less than 30 characters');
       setLoading(false);
       return;
     }
 
-    // 2. Enforces password security constraint window bounds (< 12)
     if (password.length >= 12) {
-      setError('Password must be less than 12 characters'); // ◄ FIXED: Catches and drops lengths over or equal to 12
+      setError('Password must be less than 12 characters');
       setLoading(false);
       return;
     }
 
     try {
+      /* ==========================================================================
+         CRITICAL HANDSHAKE: FLUSH OLD SESSION ON CLEAN AUTHENTICATION
+         Explicitly purges any saved session keys BEFORE logging in new user profile.
+         ========================================================================== */
+      sessionStorage.removeItem('ask_me_session_compliance_viewed');
+
       const baseUrl = import.meta.env.VITE_BACKEND_URL; 
-      
       const { data } = await api.post(`${baseUrl}/auth/login`, {
         email: cleanEmail,
         password,
       });
-
-      // Clear old session compliance banners completely right on validation success
-      sessionStorage.removeItem('ask_me_session_compliance_viewed');
 
       auth.login(data.user, data.token, { persist: rememberMe });
       if (env.postLoginPath) {
@@ -108,6 +63,7 @@ export default function LoginView() {
       setLoading(false);
     }
   };
+
   const containerVariants = {
     hidden: { opacity: 0, y: 10 },
     visible: {
