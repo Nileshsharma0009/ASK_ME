@@ -1,5 +1,5 @@
 // frontend/src/views/RegisterView.jsx
-import React, { useState, useContext } from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { FiMail, FiLock, FiUser, FiEye, FiEyeOff } from 'react-icons/fi';
 import { MdShield } from 'react-icons/md';
@@ -31,14 +31,10 @@ export default function RegisterView() {
     setError('');
     setSuccess('');
 
-    /* ==========================================================================
-       SECURITY CHECK: INPUT DATA VERIFICATION ENGINE
-       Sanitizes form inputs against strict system regex and complexity criteria.
-       ========================================================================== */
     const trimmedName = formData.name.trim();
     const cleanEmail = formData.email.trim();
 
-    // 1. Name sanity structure evaluation
+    // 1. Name validation layers
     if (trimmedName.length < 2) {
       setError('Full name must be at least 2 characters long');
       return;
@@ -48,27 +44,32 @@ export default function RegisterView() {
       return;
     }
 
-    // 2. Email syntax standard confirmation
+    // 2. Strict Email limit validation checks
+    if (cleanEmail.length > 50) {
+      setError('Email address cannot exceed 50 characters');
+      return;
+    }
+
     const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
     if (!emailRegex.test(cleanEmail)) {
       setError('Please provide a valid, formal email address');
       return;
     }
 
-    // 3. Password length minimum gate check
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+    /* ==========================================================================
+       STRICT SECURITY CHECK: REGISTER COMPLEXITY & LENGTH WINDOW
+       ========================================================================== */
+    if (formData.password.length > 12 ) {
+      setError('Password must be less than 12 character');
       return;
     }
 
-    // 4. Password alphanumeric complexity verification layer
     const strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/;
     if (!strongPasswordRegex.test(formData.password)) {
       setError('Password must contain at least one uppercase letter, one lowercase letter, and one number');
       return;
     }
 
-    // 5. Symmetric structural parity crosscheck
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -76,10 +77,8 @@ export default function RegisterView() {
 
     setLoading(true);
     try {
-      // 1. .env se base URL uthaya
       const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
-      // 2. Full dynamic URL par POST request bhej di
       await api.post(`${baseUrl}/auth/register`, {
         name: trimmedName,
         email: cleanEmail,
@@ -115,31 +114,18 @@ export default function RegisterView() {
 
   return (
     <div className="min-h-screen relative bg-indigo-50 flex items-center justify-center p-4 antialiased overflow-hidden">
-      
-      {/* ==========================================================================
-          UI COMPONENT BLOCK: HIGH-VISIBILITY INTERACTIVE MOUSE-TRACKING GRID BACKDROP
-          Uses real-time local state tracking to displace the background matrix plane 
-          smoothly depending on the cursor coordinate vectors.
-          ========================================================================== */}
       <div 
         className="absolute inset-0 overflow-hidden pointer-events-none z-0"
         onMouseMove={(e) => {
           const { currentTarget, clientX, clientY } = e;
           const { left, top, width, height } = currentTarget.getBoundingClientRect();
-          
           const x = (clientX - left - width / 2) / (width / 2);
           const y = (clientY - top - height / 2) / (height / 2);
-          
           currentTarget.style.setProperty('--mouse-x', `${x * 12}px`);
           currentTarget.style.setProperty('--mouse-y', `${y * 12}px`);
         }}
-        style={{
-          '--mouse-x': '0px',
-          '--mouse-y': '0px',
-          pointerEvents: 'auto'
-        }}
+        style={{ '--mouse-x': '0px', '--mouse-y': '0px', pointerEvents: 'auto' }}
       >
-        {/* THE COMPONENT GRID SUBSTRATE: High-visibility clinical cyan/teal matrix plane */}
         <div 
           className="absolute inset-0 transition-transform duration-300 ease-out"
           style={{
@@ -153,132 +139,48 @@ export default function RegisterView() {
             WebkitMaskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, #000 60%, transparent 100%)'
           }}
         />
-
-        {/* AMBIENT GLOW LAYER: Secondary soft backing point aura that follows behind the grid tracking matrix */}
-        <div 
-          className="absolute w-[400px] h-[400px] bg-cyan-400/10 rounded-full blur-[120px] transition-all duration-500 ease-out mix-blend-screen"
-          style={{
-            left: 'calc(50% - 200px)',
-            top: 'calc(50% - 200px)',
-            transform: 'translate(calc(var(--mouse-x) * 2.5), calc(var(--mouse-y) * 2.5))'
-          }}
-        />
+        <div className="absolute w-[400px] h-[400px] bg-cyan-400/10 rounded-full blur-[120px] transition-all duration-500 ease-out mix-blend-screen" style={{ left: 'calc(50% - 200px)', top: 'calc(50% - 200px)', transform: 'translate(calc(var(--mouse-x) * 2.5), calc(var(--mouse-y) * 2.5))' }} />
       </div>
 
-      {/* Soft Clinical Violet Background Ambient Orbs */}
       <div className="absolute top-0 inset-x-0 h-80 bg-gradient-to-b from-primary/20 to-transparent pointer-events-none blur-3xl -z-10" />
       <div className="absolute top-[10%] left-[15%] w-96 h-96 rounded-full bg-primary/10 blur-[100px] pointer-events-none -z-10" />
       <div className="absolute bottom-[10%] right-[15%] w-96 h-96 rounded-full bg-violet-400/20 blur-[100px] pointer-events-none -z-10" />
 
-      {/* Aesthetic Plus Healthcare Vectors */}
-      <div className="absolute top-[15%] left-[10%] text-primary/15 font-light text-7xl select-none hidden md:block -z-10">+</div>
-      <div className="absolute top-[40%] right-[8%] text-primary/10 font-light text-8xl select-none hidden md:block -z-10">+</div>
-      <div className="absolute bottom-[20%] left-[7%] text-primary/15 font-light text-6xl select-none hidden md:block -z-10">+</div>
-
-      <motion.div
-        className="relative z-10 w-full max-w-[440px]"
-        variants={containerVariants}
-        initial="hidden"
-        animate="visible"
-      >
-        {/* Top Centered Floating Location Badge */}
+      <motion.div className="relative z-10 w-full max-w-[440px]" variants={containerVariants} initial="hidden" animate="visible">
         <motion.div className="mb-5 flex justify-center" variants={itemVariants}>
-          <div className="bg-primary px-7 py-2 rounded-xl text-white text-sm font-bold tracking-wide shadow-md">
-            Create Account
-          </div>
+          <div className="bg-primary px-7 py-2 rounded-xl text-white text-sm font-bold tracking-wide shadow-md">Create Account</div>
         </motion.div>
 
-        {/* Clean White Clinical Interface Card Base */}
         <div className="bg-card-bg rounded-modal p-8 border border-border-default/80 shadow-modal">
-          
-          {/* Brand Signature System Header */}
-          {/* <div className="text-center mb-6">
-            <div className="flex justify-center mb-3">
-              <motion.div
-                className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center border-2 border-primary/20 shadow-card"
-                whileHover={{ scale: 1.03 }}
-              >
-                <div className="relative flex items-center justify-center">
-                  <MdShield className="w-11 h-11 text-primary" />
-                  <span className="absolute text-white font-bold text-base pb-0.5">+</span>
-                </div>
-              </motion.div>
-            </div>
-            <h1 className="text-3xl font-extrabold text-heading tracking-tight mb-1">
-              ASK<span className="text-primary">_ME</span>
-            </h1>
-            <p className="text-xs font-semibold tracking-wide text-secondary/90">
-              AI Assistant for Healthcare
-            </p>
-          </div> */}
-
-
-{/* Brand Signature System Header */}
           <div className="text-center mb-6">
             <div className="flex justify-center mb-3">
-              <motion.div
-                className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center border-2 border-primary/20 shadow-card overflow-hidden"
-                whileHover={{ scale: 1.03 }}
-              >
-                {/* FIXED: Replaced standard shield icon vectors with clean unified public asset image pointer */}
+              <motion.div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center border-2 border-primary/20 shadow-card overflow-hidden" whileHover={{ scale: 1.03 }}>
                 <div className="w-full h-full overflow-hidden flex items-center justify-center bg-white">
-                  <img 
-                    src="/logo2.png" // ◄ Change "logo.png" to your exact asset file name (e.g., /logo.png, /hospital-logo.svg)
-                    alt="Hospital Logo"
-                    className="w-full h-full object-contain"
-                  />
+                  <img src="/logo2.png" alt="Hospital Logo" className="w-full h-full object-contain" />
                 </div>
               </motion.div>
             </div>
-            <h1 className="text-3xl font-extrabold text-heading tracking-tight mb-1">
-              ASK<span className="text-primary">_ME</span>
-            </h1>
-            <p className="text-xs font-semibold tracking-wide text-secondary/90">
-              AI Assistant for Healthcare
-            </p>
+            <h1 className="text-3xl font-extrabold text-heading tracking-tight mb-1">ASK<span className="text-primary">_ME</span></h1>
+            <p className="text-xs font-semibold tracking-wide text-secondary/90">AI Assistant for Healthcare</p>
           </div>
-          {/* Operational Greeting Labels */}
-          {/* <motion.h2 className="text-2xl font-bold text-heading text-center mb-1" variants={itemVariants}>
-            Join ASK_ME
-          </motion.h2>
-          <motion.p className="text-center text-secondary text-sm mb-7" variants={itemVariants}>
-            Create your account to get started
-          </motion.p> */}
 
-          {/* Error Message Container */}
           {error && (
-            <motion.div
-              className="mb-5 p-3.5 bg-error/10 border border-error/20 text-error rounded-input text-xs font-semibold flex items-center gap-2"
-              variants={itemVariants}
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
+            <motion.div className="mb-5 p-3.5 bg-error/10 border border-error/20 text-error rounded-input text-xs font-semibold flex items-center gap-2" variants={itemVariants} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
               <span className="w-1.5 h-1.5 rounded-full bg-error animate-pulse" />
               {error}
             </motion.div>
           )}
 
-          {/* Success Message Container */}
           {success && (
-            <motion.div
-              className="mb-5 p-3.5 bg-success/10 border border-success/20 text-success rounded-input text-xs font-semibold flex items-center gap-2"
-              variants={itemVariants}
-              initial={{ opacity: 0, y: -8 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
+            <motion.div className="mb-5 p-3.5 bg-success/10 border border-success/20 text-success rounded-input text-xs font-semibold flex items-center gap-2" variants={itemVariants} initial={{ opacity: 0, y: -8 }} animate={{ opacity: 1, y: 0 }}>
               <span className="w-1.5 h-1.5 rounded-full bg-success animate-pulse" />
-              {success}
+              {error || success}
             </motion.div>
           )}
 
-          {/* Core Access Input Forms */}
           <form onSubmit={handleRegister} className="space-y-4">
-            
-            {/* Full Name Block */}
             <motion.div variants={itemVariants}>
-              <label className="block text-sm font-bold text-heading mb-1.5">
-                Full Name
-              </label>
+              <label className="block text-sm font-bold text-heading mb-1.5">Full Name</label>
               <div className="relative group">
                 <FiUser className="absolute left-4 top-3.5 text-secondary/70 group-focus-within:text-primary transition-colors duration-150 w-4 h-4" />
                 <input
@@ -294,11 +196,8 @@ export default function RegisterView() {
               </div>
             </motion.div>
 
-            {/* Email Block */}
             <motion.div variants={itemVariants}>
-              <label className="block text-sm font-bold text-heading mb-1.5">
-                Email
-              </label>
+              <label className="block text-sm font-bold text-heading mb-1.5">Email</label>
               <div className="relative group">
                 <FiMail className="absolute left-4 top-3.5 text-secondary/70 group-focus-within:text-primary transition-colors duration-150 w-4 h-4" />
                 <input
@@ -314,11 +213,8 @@ export default function RegisterView() {
               </div>
             </motion.div>
 
-            {/* Password Block */}
             <motion.div variants={itemVariants}>
-              <label className="block text-sm font-bold text-heading mb-1.5">
-                Password
-              </label>
+              <label className="block text-sm font-bold text-heading mb-1.5">Password</label>
               <div className="relative group">
                 <FiLock className="absolute left-4 top-3.5 text-secondary/70 group-focus-within:text-primary transition-colors duration-150 w-4 h-4" />
                 <input
@@ -331,22 +227,14 @@ export default function RegisterView() {
                   autoComplete="new-password"
                   className="w-full pl-11 pr-11 py-3 bg-white border border-border-default rounded-input text-sm text-body placeholder-placeholder/80 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all duration-150 font-medium tracking-wide shadow-sm"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-4 top-3.5 text-secondary/60 hover:text-primary transition-colors duration-150 focus:outline-none"
-                  aria-label={showPassword ? 'Hide password' : 'Show password'}
-                >
+                <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-3.5 text-secondary/60 hover:text-primary transition-colors duration-150 focus:outline-none" aria-label={showPassword ? 'Hide password' : 'Show password'}>
                   {showPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
                 </button>
               </div>
             </motion.div>
 
-            {/* Confirm Password Block */}
             <motion.div variants={itemVariants}>
-              <label className="block text-sm font-bold text-heading mb-1.5">
-                Confirm Password
-              </label>
+              <label className="block text-sm font-bold text-heading mb-1.5">Confirm Password</label>
               <div className="relative group">
                 <FiLock className="absolute left-4 top-3.5 text-secondary/70 group-focus-within:text-primary transition-colors duration-150 w-4 h-4" />
                 <input
@@ -359,72 +247,39 @@ export default function RegisterView() {
                   autoComplete="new-password"
                   className="w-full pl-11 pr-11 py-3 bg-white border border-border-default rounded-input text-sm text-body placeholder-placeholder/80 focus:outline-none focus:border-primary focus:ring-2 focus:ring-primary/10 transition-all duration-150 font-medium tracking-wide shadow-sm"
                 />
-                <button
-                  type="button"
-                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  className="absolute right-4 top-3.5 text-secondary/60 hover:text-primary transition-colors duration-150 focus:outline-none"
-                  aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}
-                >
+                <button type="button" onClick={() => setShowConfirmPassword(!showConfirmPassword)} className="absolute right-4 top-3.5 text-secondary/60 hover:text-primary transition-colors duration-150 focus:outline-none" aria-label={showConfirmPassword ? 'Hide confirm password' : 'Show confirm password'}>
                   {showConfirmPassword ? <FiEyeOff className="w-4 h-4" /> : <FiEye className="w-4 h-4" />}
                 </button>
               </div>
             </motion.div>
 
-            {/* Submit Action Button */}
-            <motion.button
-              type="submit"
-              disabled={loading}
-              variants={itemVariants}
-              whileTap={{ scale: 0.99 }}
-              className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3.5 px-4 rounded-button shadow-card hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 text-base mt-6"
-            >
+            <motion.button type="submit" disabled={loading} variants={itemVariants} whileTap={{ scale: 0.99 }} className="w-full bg-primary hover:bg-primary-dark text-white font-bold py-3.5 px-4 rounded-button shadow-card hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 text-base mt-6">
               {loading ? (
                 <div className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
-                  </svg>
+                  <svg className="animate-spin h-5 w-5 text-white" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" /></svg>
                   <span>Creating account...</span>
                 </div>
-              ) : (
-                <span>Sign Up</span>
-              )}
+              ) : <span>Sign Up</span>}
             </motion.button>
           </form>
 
-          {/* Micro-Structuring Separator Core Element */}
           <motion.div className="my-5 flex items-center gap-3" variants={itemVariants}>
             <div className="flex-1 h-px bg-border-default" />
             <span className="text-xs uppercase font-bold tracking-widest text-secondary/60">or</span>
             <div className="flex-1 h-px bg-border-default" />
           </motion.div>
 
-          {/* Onboarding Alternate Paths Core Link */}
           <motion.p className="text-center text-sm text-body font-medium" variants={itemVariants}>
-            Already have an account?{' '}
-            <Link
-              to={env.routes.login}
-              className="text-primary hover:text-primary-dark font-bold transition-colors duration-150 ml-0.5"
-            >
-              Sign in
-            </Link>
+            Already have an account? <Link to={env.routes.login} className="text-primary hover:text-primary-dark font-bold transition-colors duration-150 ml-0.5">Sign in</Link>
           </motion.p>
         </div>
 
-        {/* Security Trust Profile Compliance Infrastructure Footnote */}
-        <motion.div
-          className="mt-5 bg-slate-100/60 border border-border-default/40 rounded-2xl p-3.5 text-center flex flex-col items-center justify-center gap-1 shadow-sm"
-          variants={itemVariants}
-        >
+        <motion.div className="mt-5 bg-slate-100/60 border border-border-default/40 rounded-2xl p-3.5 text-center flex flex-col items-center justify-center gap-1 shadow-sm" variants={itemVariants}>
           <div className="flex items-center justify-center space-x-2 text-primary">
-            <div className="w-7 h-7 bg-primary/10 rounded-full flex items-center justify-center">
-              <MdShield className="w-4 h-4 text-primary" />
-            </div>
+            <div className="w-7 h-7 bg-primary/10 rounded-full flex items-center justify-center"><MdShield className="w-4 h-4 text-primary" /></div>
             <span className="text-sm font-bold text-heading">Secure & Confidential</span>
           </div>
-          <p className="text-xs text-secondary font-medium leading-relaxed max-w-xs">
-            Your data is encrypted and safe with us.
-          </p>
+          <p className="text-xs text-secondary font-medium leading-relaxed max-w-xs">Your data is encrypted and safe with us.</p>
         </motion.div>
       </motion.div>
     </div>

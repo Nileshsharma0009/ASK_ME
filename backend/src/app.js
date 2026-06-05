@@ -2,6 +2,7 @@ import express from "express" ;
 import cors from "cors" ;
  import authRoutes from "./routes/auth.routes.js"
 import chatRoutes from "./routes/chat.routes.js";
+import systemRoutes from "./routes/system.routes.js"; // ◄ FIXED: Imported system routes
 
 import dotenv, { configDotenv } from "dotenv" ;
 
@@ -25,6 +26,7 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/system", systemRoutes);
 
 app.get("/api/health" ,  (req , res) => {
      res.json({ok :true}) ;
