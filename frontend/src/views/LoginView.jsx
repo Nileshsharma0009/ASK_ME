@@ -18,7 +18,7 @@ export default function LoginView() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-const handleLogin = async (e) => {
+  const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     setError('');
@@ -27,12 +27,11 @@ const handleLogin = async (e) => {
       const baseUrl = import.meta.env.VITE_BACKEND_URL; 
       
       // 2. Direct full dynamic URL par POST request bhej di
-     const { data } = await api.post(`${baseUrl}/auth/login`, {
-  email: username,
-  password,
-});
+      const { data } = await api.post(`${baseUrl}/auth/login`, {
+        email: username,
+        password,
+      });
 
-      
       auth.login(data.user, data.token, { persist: rememberMe });
       if (env.postLoginPath) {
         navigate(env.postLoginPath, { replace: true });
@@ -65,28 +64,66 @@ const handleLogin = async (e) => {
   return (
     <div className="min-h-screen relative bg-indigo-50 flex items-center justify-center p-4 antialiased overflow-hidden">
       
+      {/* ==========================================================================
+          UI COMPONENT BLOCK: HIGH-VISIBILITY INTERACTIVE MOUSE-TRACKING GRID BACKDROP
+          Uses real-time local state tracking to displace the background matrix plane 
+          smoothly depending on the cursor coordinate vectors.
+          ========================================================================== */}
+      <div 
+        className="absolute inset-0 overflow-hidden pointer-events-none z-0"
+        onMouseMove={(e) => {
+          const { currentTarget, clientX, clientY } = e;
+          const { left, top, width, height } = currentTarget.getBoundingClientRect();
+          
+          // Calculate precise percentage-based coordinates tracking from the center point
+          const x = (clientX - left - width / 2) / (width / 2);
+          const y = (clientY - top - height / 2) / (height / 2);
+          
+          // Feed the calculations directly into CSS custom variables for ultra-smooth rendering performance
+          currentTarget.style.setProperty('--mouse-x', `${x * 12}px`); // ◄ Controls the maximum horizontal grid shift
+          currentTarget.style.setProperty('--mouse-y', `${y * 12}px`); // ◄ Controls the maximum vertical grid shift
+        }}
+        style={{
+          '--mouse-x': '0px',
+          '--mouse-y': '0px',
+          pointerEvents: 'auto' // Activates mouse interception layers specifically for this wrapper frame
+        }}
+      >
+        {/* THE COMPONENT GRID SUBSTRATE: High-visibility clinical cyan/teal matrix plane */}
+        <div 
+          className="absolute inset-0 transition-transform duration-300 ease-out"
+          style={{
+            backgroundImage: `
+              linear-gradient(to right, rgba(6, 182, 212, 0.16) 1.5px, transparent 1.5px),
+              linear-gradient(to bottom, rgba(6, 182, 212, 0.16) 1.5px, transparent 1.5px)
+            `,
+            backgroundSize: '30px 30px',
+            transform: 'translate(var(--mouse-x), var(--mouse-y)) scale(1.02)', // Smoothly shifts lines using GPU acceleration acceleration triggers
+            maskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, #000 60%, transparent 100%)',
+            WebkitMaskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, #000 60%, transparent 100%)'
+          }}
+        />
+
+        {/* AMBIENT GLOW LAYER: Secondary soft backing point aura that follows behind the grid tracking matrix */}
+        <div 
+          className="absolute w-[400px] h-[400px] bg-cyan-400/10 rounded-full blur-[120px] transition-all duration-500 ease-out mix-blend-screen"
+          style={{
+            left: 'calc(50% - 200px)',
+            top: 'calc(50% - 200px)',
+            transform: 'translate(calc(var(--mouse-x) * 2.5), calc(var(--mouse-y) * 2.5))' // Ambient aura travels slightly faster for depth perception
+          }}
+        />
+      </div>
+
       {/* Soft Clinical Violet Background Ambient Orbs */}
-      <div className="absolute top-0 inset-x-0 h-80 bg-gradient-to-b from-primary/20 to-transparent pointer-events-none blur-3xl" />
-      <div className="absolute top-[10%] left-[15%] w-96 h-96 rounded-full bg-primary/10 blur-[100px] pointer-events-none" />
-      <div className="absolute bottom-[10%] right-[15%] w-96 h-96 rounded-full bg-violet-400/20 blur-[100px] pointer-events-none" />
+      <div className="absolute top-0 inset-x-0 h-80 bg-gradient-to-b from-primary/20 to-transparent pointer-events-none blur-3xl -z-10" />
+      <div className="absolute top-[10%] left-[15%] w-96 h-96 rounded-full bg-primary/10 blur-[100px] pointer-events-none -z-10" />
+      <div className="absolute bottom-[10%] right-[15%] w-96 h-96 rounded-full bg-violet-400/20 blur-[100px] pointer-events-none -z-10" />
 
       {/* Aesthetic Plus Healthcare Vectors */}
-      <div className="absolute top-[15%] left-[10%] text-primary/15 font-light text-7xl select-none hidden md:block">+</div>
-      <div className="absolute top-[40%] right-[8%] text-primary/10 font-light text-8xl select-none hidden md:block">+</div>
-      <div className="absolute bottom-[20%] left-[7%] text-primary/15 font-light text-6xl select-none hidden md:block">+</div>
-
-      {/* Decorative Mock-up Hospital Vector Substrate Illustration */}
-      <div className="absolute top-[4%] inset-x-0 flex justify-center opacity-[0.07] pointer-events-none">
-        <svg width="280" height="140" viewBox="0 0 300 150" className="text-primary">
-          <rect x="70" y="20" width="160" height="130" fill="currentColor" rx="8" />
-          <rect x="90" y="40" width="25" height="25" fill="white" rx="3" />
-          <rect x="135" y="40" width="25" height="25" fill="white" rx="3" />
-          <rect x="180" y="40" width="25" height="25" fill="white" rx="3" />
-          <rect x="90" y="85" width="25" height="25" fill="white" rx="3" />
-          <rect x="135" y="85" width="25" height="25" fill="white" rx="3" />
-          <rect x="180" y="85" width="25" height="25" fill="white" rx="3" />
-        </svg>
-      </div>
+      <div className="absolute top-[15%] left-[10%] text-primary/15 font-light text-7xl select-none hidden md:block"></div>
+      <div className="absolute top-[40%] right-[8%] text-primary/10 font-light text-8xl select-none hidden md:block"></div>
+      <div className="absolute bottom-[20%] left-[7%] text-primary/15 font-light text-6xl select-none hidden md:block">-z-10</div>
 
       <motion.div
         className="relative z-10 w-full max-w-[440px]"
@@ -97,7 +134,7 @@ const handleLogin = async (e) => {
         {/* Top Centered Floating Location Badge */}
         <motion.div className="mb-5 flex justify-center" variants={itemVariants}>
           <div className="bg-primary px-7 py-2 rounded-xl text-white text-sm font-bold tracking-wide shadow-md">
-            Login Page
+            Login page
           </div>
         </motion.div>
 
@@ -105,7 +142,7 @@ const handleLogin = async (e) => {
         <div className="bg-card-bg rounded-modal p-8 border border-border-default/80 shadow-modal">
           
           {/* Brand Signature System Header */}
-          <div className="text-center mb-6">
+          {/* <div className="text-center mb-6">
             <div className="flex justify-center mb-3">
               <motion.div
                 className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center border-2 border-primary/20 shadow-card"
@@ -123,15 +160,38 @@ const handleLogin = async (e) => {
             <p className="text-xs font-semibold tracking-wide text-secondary/90">
               AI Assistant for Healthcare
             </p>
-          </div>
+          </div> */}
 
+ <div className="text-center mb-6">
+            <div className="flex justify-center mb-3">
+              <motion.div
+                className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center border-2 border-primary/20 shadow-card overflow-hidden"
+                whileHover={{ scale: 1.03 }}
+              >
+                {/* FIXED: Replaced standard shield icon vectors with clean unified public asset image pointer */}
+                <div className="w-full h-full overflow-hidden flex items-center justify-center bg-white">
+                  <img 
+                    src="/logo2.png" // ◄ Change "logo.png" to your exact asset file name (e.g., /logo.png, /hospital-logo.svg)
+                    alt="Hospital Logo"
+                    className="w-full h-full object-contain"
+                  />
+                </div>
+              </motion.div>
+            </div>
+            <h1 className="text-3xl font-extrabold text-heading tracking-tight mb-1">
+              ASK<span className="text-primary">_ME</span>
+            </h1>
+            <p className="text-xs font-semibold tracking-wide text-secondary/90">
+              AI Assistant for Healthcare
+            </p>
+          </div>
           {/* Operational Greeting Labels */}
-          <motion.h2 className="text-2xl font-bold text-heading text-center mb-1" variants={itemVariants}>
+          {/* <motion.h2 className="text-2xl font-bold text-heading text-center mb-1" variants={itemVariants}>
             Welcome Back!
           </motion.h2>
           <motion.p className="text-center text-secondary text-sm mb-7" variants={itemVariants}>
-            Sign in to continue to ASK_ME
-          </motion.p>
+             Login to continue to ASK_ME
+          </motion.p> */}
 
           {/* Error Message Container */}
           {error && (
