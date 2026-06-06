@@ -48,6 +48,10 @@ export default function LoginView() {
       sessionStorage.removeItem('ask_me_session_compliance_viewed');
 
       const baseUrl = import.meta.env.VITE_BACKEND_URL; 
+
+      console.log("Backend URL:", baseUrl);
+console.log("Login URL:", `${baseUrl}/auth/login`);
+
       const { data } = await api.post(`${baseUrl}/auth/login`, {
         email: cleanEmail,
         password,

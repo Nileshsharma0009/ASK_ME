@@ -86,6 +86,10 @@ export default function RegisterView() {
       sessionStorage.removeItem('ask_me_session_compliance_viewed');
 
       const baseUrl = import.meta.env.VITE_BACKEND_URL;
+
+      console.log("Backend URL:", baseUrl);
+console.log("Login URL:", `${baseUrl}/auth/register`);
+
       await api.post(`${baseUrl}/auth/register`, {
         name: trimmedName,
         email: cleanEmail,
