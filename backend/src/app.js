@@ -3,6 +3,7 @@ import cors from "cors" ;
  import authRoutes from "./routes/auth.routes.js"
 import chatRoutes from "./routes/chat.routes.js";
 import systemRoutes from "./routes/system.routes.js"; // ◄ FIXED: Imported system routes
+import axios from "axios";
 
 import dotenv, { configDotenv } from "dotenv" ;
 
