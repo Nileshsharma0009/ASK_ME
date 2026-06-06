@@ -35,16 +35,26 @@ const baseUrl = process.env.FRONTEND_URL; //  YEH SAHI HAI
 //   credentials: true,
 // }));
 
+// app.use(
+//   cors({
+//     origin: [
+//       "http://localhost:5173",
+//       "https://ask-me-red-xi.vercel.app/",
+//     ],
+//     credentials: true,
+//   })
+// );
+
+
 app.use(
   cors({
     origin: [
       "http://localhost:5173",
-      "https://ask-me-red-xi.vercel.app/",
+      "https://ask-me-red-xi.vercel.app",
     ],
     credentials: true,
   })
 );
-
 app.use(express.json());
 // app.use (cookieParser()) ;
 
