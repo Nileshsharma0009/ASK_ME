@@ -1,4 +1,4 @@
-# 🏥 ASK_ME: Clinical RAG AI Companion
+#  ASK_ME: Clinical RAG AI Companion
 
 `ASK_ME` is a premium, high-performance **Retrieval-Augmented Generation (RAG)** platform designed specifically for medical professionals, clinicians, and hospital administrators. It enables users to instantly query complex institutional medical documents, guidelines, clinical protocols, and PDF manual data via a modern web interface.
 
@@ -30,7 +30,7 @@ graph TD
     classDef ai fill:#8b5cf6,stroke:#6d28d9,color:#fff,stroke-width:2px;
 
     %% Components
-    User((User / Medical Officer))
+    User((User ))
     UI[React Web App Client]:::client
     API[Express App API Server]:::server
     MDB[(MongoDB Database)]:::database
