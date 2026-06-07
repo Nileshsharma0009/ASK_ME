@@ -29,30 +29,21 @@ setInterval(reloadWebsite, interval);
 
 
 
-const baseUrl = process.env.FRONTEND_URL; //  YEH SAHI HAI 
-// todo cors 
-// app.use(cors({
-//   origin: "https://ask-me-red-xi.vercel.app/"|| "http://localhost:5173",
-//   credentials: true,
-// }));
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://ask-me-red-xi.vercel.app"
+];
 
-// app.use(
-//   cors({
-//     origin: [
-//       "http://localhost:5173",
-//       "https://ask-me-red-xi.vercel.app/",
-//     ],
-//     credentials: true,
-//   })
-// );
-
+if (process.env.FRONTEND_URL) {
+  const normalizedFrontendUrl = process.env.FRONTEND_URL.replace(/\/$/, "");
+  if (!allowedOrigins.includes(normalizedFrontendUrl)) {
+    allowedOrigins.push(normalizedFrontendUrl);
+  }
+}
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://ask-me-red-xi.vercel.app/",
-    ],
+    origin: allowedOrigins,
     credentials: true,
   })
 );
