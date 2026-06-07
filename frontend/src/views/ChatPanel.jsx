@@ -250,8 +250,7 @@ export default function ChatPanel() {
   return (
     <div className="relative flex h-full min-h-0 flex-col overflow-hidden">
       
-      {/* UI DECORATION: Top Fade Overlay */}
-      <div className="pointer-events-none absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-app-bg via-app-bg/80 to-transparent z-10" />
+
 
       {/* VIEWPORT SCROLL WRAPPER (Locks clicks and blurs if modal is active) */}
       <div
@@ -351,7 +350,7 @@ export default function ChatPanel() {
                     <div
                       className={`relative ${
                         isUser
-                          ? 'ml-auto rounded-[28px] rounded-br-lg bg-slate-900 px-5 py-4 text-white shadow-[0_18px_50px_-24px_rgba(15,23,42,0.65)]'
+                          ? 'ml-auto rounded-[28px] rounded-br-lg bg-black px-5 py-4 text-white shadow-sm'
                           : isError
                           ? 'rounded-[30px] rounded-tl-lg border border-rose-200 bg-rose-50 px-5 py-4 text-rose-700'
                           : 'px-1 py-0 text-body'
@@ -377,8 +376,7 @@ export default function ChatPanel() {
         )}
       </div>
 
-      {/* UI DECORATION: Bottom Gradient Overlay mask */}
-      <div className="pointer-events-none absolute inset-x-0 bottom-0 h-40 bg-gradient-to-t from-app-bg via-app-bg/95 to-transparent z-10" />
+
 
       {/* FIXED FOOTER CONTROL INPUT CONSOLE STRIP */}
       <div className={`absolute inset-x-0 bottom-0 px-4 pb-5 sm:px-6 lg:px-10 z-20 transition-all duration-300 ${
