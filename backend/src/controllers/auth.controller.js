@@ -40,7 +40,13 @@ export const register = async (req, res) => {
     }
 
     // Guard against NoSQL Query Injection
-    const userExists = await User.findOne({ email: { $eq: trimmedEmail } });
+    const escapedEmail = trimmedEmail.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+    const userExists = await User.findOne({
+      $or: [
+        { email: { $eq: trimmedEmail } },
+        { email: { $regex: new RegExp(`^${escapedEmail}$`, "i") } }
+      ]
+    });
     if (userExists) {
       return res.status(400).json({ message: "Email already registered" });
     }
@@ -89,7 +95,12 @@ export const login = async (req, res) => {
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
-    const user = await User.findOne({ email: { $eq: trimmedEmail } });
+    const escapedEmail = trimmedEmail.replace(/[-[\]{}()*+?.,\\^$|#\s]/g, "\\$&");
+    let user = await User.findOne({ email: { $eq: trimmedEmail } });
+    if (!user) {
+      // Fallback to case-insensitive lookup to support mixed-case registered emails (e.g. B@GMAIL.COM)
+      user = await User.findOne({ email: { $regex: new RegExp(`^${escapedEmail}$`, "i") } });
+    }
     if (!user) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
