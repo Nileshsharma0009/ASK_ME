@@ -9,7 +9,12 @@ web_modules/
 .env.development.local
 .env.test.local
 .env.production.local
-
+.env.production
+.env.development
+.env.test
+*.env
+*.env.*
+!.env.example
 # Hospital Data Storage (Crucial for HIPAA/Privacy)
 backend/data/raw/*
 backend/data/processed/*
