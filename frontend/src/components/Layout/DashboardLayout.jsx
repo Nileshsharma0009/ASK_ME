@@ -14,12 +14,12 @@ import {
   FiX
 } from 'react-icons/fi';
 import { AuthContext } from '../../context/AuthContext';
-import { ChatContext } from '../../context/ChatContext'; 
+import { ChatContext } from '../../context/ChatContext';
 import { env } from '../../config/env';
 
 // 1. Clean Configuration for Navigation Items
 const NAV_ITEMS = [
-  { to: '.', end: true, label: 'ASK_ME', icon: FiMessageSquare, segment: 'chat' },
+  { to: '.', end: true, label: 'VANI', icon: FiMessageSquare, segment: 'chat' },
   { to: 'New chat', label: 'New chat', icon: FiUploadCloud, segment: 'New chat' },
   { to: 'history', label: 'History', icon: FiClock, segment: 'history' },
   { to: 'profile', label: 'Profile', icon: FiUser, segment: 'profile' },
@@ -34,7 +34,7 @@ const PAGE_TITLES = {
       <span className="animate-bounce origin-bottom-right inline-block"></span>
     </div>
   ),
-  'New chat': 'Start a New Workspace Session', 
+  'New chat': 'Start a New Workspace Session',
   upload: 'Upload Medical Knowledge',
   history: 'Query History Log',
   profile: 'User Profile Analytics',
@@ -55,20 +55,20 @@ export default function DashboardLayout() {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const { 
-    conversationId, 
-    setMessages, 
-    setConversationId, 
-    setInputMessage, 
-    setAnimatedMessageId 
+  const {
+    conversationId,
+    setMessages,
+    setConversationId,
+    setInputMessage,
+    setAnimatedMessageId
   } = useContext(ChatContext);
 
   const userDisplayName = auth?.user?.name || 'Medical Officer';
   const userDepartment = auth?.user?.department || '';
-  
+
   const segment = getActiveSegment(location.pathname);
   const headerTitle = PAGE_TITLES[segment];
-  const isChat = segment === 'chat' || segment === 'New chat'; 
+  const isChat = segment === 'chat' || segment === 'New chat';
 
   const sidebarVariants = {
     open: { width: '260px', opacity: 1, transition: { type: 'spring', stiffness: 240, damping: 28 } },
@@ -76,7 +76,7 @@ export default function DashboardLayout() {
   };
 
   const handleNewChatClick = (e) => {
-    e.preventDefault(); 
+    e.preventDefault();
     setMessages([]);
     setConversationId('');
     setInputMessage('');
@@ -87,18 +87,18 @@ export default function DashboardLayout() {
 
   const handleLogout = () => {
     auth?.logout?.();
-    sessionStorage.removeItem('ask_me_session_compliance_viewed');
+    sessionStorage.removeItem('VANI_session_compliance_viewed');
     navigate(env.routes.login || '/login', { replace: true });
   };
 
   return (
     <div className="min-h-screen bg-app-bg text-body flex antialiased selection:bg-primary/10 overflow-hidden">
-      
+
       {/* MOBILE OVERLAY */}
       {isMobileMenuOpen && (
         <div className="fixed inset-0 bg-black/40 z-40 md:hidden" onClick={() => setIsMobileMenuOpen(false)} />
       )}
-      
+
       {/* ASIDE COLLAPSIBLE NAVIGATION DRAWER */}
       <motion.aside
         variants={sidebarVariants}
@@ -109,10 +109,10 @@ export default function DashboardLayout() {
       >
         <div className="w-full flex flex-col justify-between h-full">
           <div className="p-4 flex flex-col items-center">
-            
+
             {/* SIDEBAR HEADER */}
             <div className={`flex items-center w-full mb-8 ${isSidebarOpen ? 'justify-between px-1' : 'justify-center'}`}>
-              <div 
+              <div
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 className="flex items-center gap-3 overflow-hidden cursor-pointer select-none active:scale-98 transition-all duration-200"
               >
@@ -121,7 +121,7 @@ export default function DashboardLayout() {
                 </div>
                 {isSidebarOpen && (
                   <motion.div initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} className="whitespace-nowrap">
-                    <h1 className="text-base font-black tracking-tight text-heading">ASK<span className="text-primary">_ME</span></h1>
+                    <h1 className="text-base font-black tracking-tight text-heading">VA<span className="text-primary">NI</span></h1>
                     <p className="text-[9px] uppercase tracking-widest text-secondary font-extrabold">Clinical RAG Engine</p>
                   </motion.div>
                 )}
@@ -130,7 +130,7 @@ export default function DashboardLayout() {
                 <FiX className="w-6 h-6" />
               </button>
             </div>
-            
+
             {/* SIDEBAR NAVIGATION LINKS */}
             <nav className="space-y-1.5 w-full flex flex-col items-center">
               {NAV_ITEMS.map((item) => {
@@ -169,48 +169,48 @@ export default function DashboardLayout() {
       </motion.aside>
 
       {/* CORE CONTENT WORKSPACE */}
-    <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
-  {/* REMOVED: backdrop-blur-md, and shadow-sm (if it was there) */}
-  {/* CHANGED: bg-card-bg/80 to just bg-app-bg for a seamless look */}
-<header className="h-20 bg-app-bg border-b border-border-default/30 px-6 md:px-8 flex items-center justify-between shrink-0 z-30">
-    <div className="flex items-center gap-4">
-      <button className="md:hidden p-2 text-heading" onClick={() => setIsMobileMenuOpen(true)}>
-        <FiMenu className="w-6 h-6" />
-      </button>
-      <AnimatePresence mode="wait">
-        <motion.div 
-          key={segment} 
-          initial={{ opacity: 0, x: -8 }} 
-          animate={{ opacity: 1, x: 0 }} 
-          exit={{ opacity: 0, x: 8 }} 
-          transition={{ duration: 0.15 }} 
-          className="text-lg font-black text-heading"
-        >
-          {typeof headerTitle === 'function' ? headerTitle(userDisplayName) : headerTitle}
-        </motion.div>
-      </AnimatePresence>
-    </div>
+      <div className="flex-1 flex flex-col h-screen overflow-hidden relative">
+        {/* REMOVED: backdrop-blur-md, and shadow-sm (if it was there) */}
+        {/* CHANGED: bg-card-bg/80 to just bg-app-bg for a seamless look */}
+        <header className="h-20 bg-app-bg border-b border-border-default/30 px-6 md:px-8 flex items-center justify-between shrink-0 z-30">
+          <div className="flex items-center gap-4">
+            <button className="md:hidden p-2 text-heading" onClick={() => setIsMobileMenuOpen(true)}>
+              <FiMenu className="w-6 h-6" />
+            </button>
+            <AnimatePresence mode="wait">
+              <motion.div
+                key={segment}
+                initial={{ opacity: 0, x: -8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: 8 }}
+                transition={{ duration: 0.15 }}
+                className="text-lg font-black text-heading"
+              >
+                {typeof headerTitle === 'function' ? headerTitle(userDisplayName) : headerTitle}
+              </motion.div>
+            </AnimatePresence>
+          </div>
 
-    <div className="flex items-center gap-4">
-      <NavLink to="profile" className="flex items-center gap-3 border-l border-border-default/30 pl-4 hover:opacity-80 transition-opacity">
-        {/* REMOVED: ring-2 ring-primary/10 (This often creates a faint white halo) */}
-        <img 
-          src={auth?.user?.profileImage || "/1.png"} 
-          alt="Avatar" 
-          className="w-9 h-9 rounded-full object-cover" 
-        />
-        <div className="flex flex-col text-left hidden sm:flex">
-          <span className="text-xs font-bold text-heading flex items-center gap-1.5">{userDisplayName} <FiChevronDown className="w-3 h-3 text-secondary" /></span>
-          <span className="text-[9px] text-secondary font-bold uppercase tracking-wider">{userDepartment}</span>
-        </div>
-      </NavLink>
-    </div>
-  </header>
+          <div className="flex items-center gap-4">
+            <NavLink to="profile" className="flex items-center gap-3 border-l border-border-default/30 pl-4 hover:opacity-80 transition-opacity">
+              {/* REMOVED: ring-2 ring-primary/10 (This often creates a faint white halo) */}
+              <img
+                src={auth?.user?.profileImage || "/1.png"}
+                alt="Avatar"
+                className="w-9 h-9 rounded-full object-cover"
+              />
+              <div className="flex flex-col text-left hidden sm:flex">
+                <span className="text-xs font-bold text-heading flex items-center gap-1.5">{userDisplayName} <FiChevronDown className="w-3 h-3 text-secondary" /></span>
+                <span className="text-[9px] text-secondary font-bold uppercase tracking-wider">{userDepartment}</span>
+              </div>
+            </NavLink>
+          </div>
+        </header>
 
-  <main className={`flex-1 overflow-y-auto bg-app-bg ${isChat ? 'p-0' : 'p-6 md:p-8'}`}>
-    <Outlet />
-  </main>
-</div>
+        <main className={`flex-1 overflow-y-auto bg-app-bg ${isChat ? 'p-0' : 'p-6 md:p-8'}`}>
+          <Outlet />
+        </main>
+      </div>
     </div>
   );
 }

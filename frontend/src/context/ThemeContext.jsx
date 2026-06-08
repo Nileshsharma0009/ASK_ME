@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useMemo, useState } from 'react';
 
-const STORAGE_KEY = 'ask_me_theme';
+const STORAGE_KEY = 'VANI_theme';
 const MEDIA_QUERY = '(prefers-color-scheme: dark)';
 
 const ThemeContext = createContext(null);

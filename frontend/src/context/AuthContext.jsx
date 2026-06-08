@@ -53,7 +53,7 @@ export function AuthProvider({ children }) {
     localStorage.removeItem('user');
     localStorage.removeItem('token');
     // Tab session security cleanup
-    sessionStorage.removeItem('ask_me_session_compliance_viewed');
+    sessionStorage.removeItem('VANI_session_compliance_viewed');
   };
 
   /* ==========================================================================

@@ -3,7 +3,7 @@ Here is a clean, production-ready **README.md** section that you can copy and pa
 ---
 
 ```markdown
-# ASK_ME - Clinical RAG Engine
+# VANI - Clinical RAG Engine
 
 A full-stack Retrieval-Augmented Generation (RAG) platform designed for healthcare professionals to query clinical documentation, protocols, and medical knowledge bases securely.
 

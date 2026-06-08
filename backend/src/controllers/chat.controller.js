@@ -64,7 +64,11 @@ export const sendMessage = async (req, res) => {
     // call RAG pipeline to get an answer (falls back to mock reply on error)
     let ragAnswer = null;
     try {
-      ragAnswer = await chatting(question.trim());
+      const history = conversation.messages.map(m => ({
+        role: m.sender === "human" ? "user" : "model",
+        content: m.text
+      }));
+      ragAnswer = await chatting(question.trim(), history);
     } catch (err) {
       console.error('RAG pipeline error:', err);
       ragAnswer = null;

@@ -1,6 +1,6 @@
-# ASK_ME Frontend - Healthcare AI Assistant UI
+# VANI Frontend - Healthcare AI Assistant UI
 
-Beautiful, modern React frontend for the ASK_ME healthcare AI assistant.
+Beautiful, modern React frontend for the VANI healthcare AI assistant.
 
 ## 🎨 Design System
 
@@ -224,4 +224,4 @@ The frontend expects the backend to provide:
 
 ---
 
-Built with ❤️ for ASK_ME Healthcare Platform
+Built with ❤️ for VANI Healthcare Platform

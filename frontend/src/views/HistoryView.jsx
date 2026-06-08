@@ -137,7 +137,7 @@ export default function HistoryView() {
       {/* HEADER SECTION: Title Typography Block */}
       <div>
         <h3 className="text-xl font-extrabold text-heading tracking-tight">Conversation History</h3>
-        <p className="text-xs font-semibold text-secondary mt-0.5">View, reopen, and delete your saved ASK_ME chats</p>
+        <p className="text-xs font-semibold text-secondary mt-0.5">View, reopen, and delete your saved VANI chats</p>
       </div>
 
       {/* ==========================================================================
@@ -145,7 +145,7 @@ export default function HistoryView() {
          Hosts live string parsing search-input fields alongside bulk deletion triggers.
          ========================================================================== */}
       <div className="flex flex-col sm:flex-row gap-3 items-center justify-between pt-1">
-        
+
         {/* FILTER COMPONENT: Search Input Wrapper */}
         <div className="relative w-full sm:max-w-sm group">
           <FiSearch className="absolute left-4 top-3 text-secondary/70 group-focus-within:text-primary transition-colors duration-150 w-4 h-4" />
@@ -177,7 +177,7 @@ export default function HistoryView() {
          Manages layout viewports for loading blocks, zero-state vectors, or rows.
          ========================================================================== */}
       <div className="bg-card-bg rounded-card border border-border-default shadow-card overflow-hidden">
-        
+
         {/* DATAGRID ROW: Structural Column Title Headers */}
         <div className="grid grid-cols-12 bg-slate-50/70 border-b border-border-default/60 px-6 py-3.5 text-xs font-bold text-secondary uppercase tracking-wider select-none">
           <div className="col-span-12 md:col-span-7 text-left">Question</div>
@@ -187,7 +187,7 @@ export default function HistoryView() {
 
         {/* DATAGRID ENTRIES AREA: Vertical Mapped Row Blocks */}
         <div className="divide-y divide-border-default/50">
-          
+
           {isLoading ? (
             /* DATA RENDER WORKFLOW A: Active Pending API Request Pulse Overlay */
             <div className="p-12 text-center text-sm font-bold text-secondary animate-pulse">
@@ -267,7 +267,7 @@ export default function HistoryView() {
          Coordinates record indicators against dynamic index array navigators.
          ========================================================================== */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-4 pt-2 px-1 select-none">
-        
+
         {/* PAGINATION INFOBAR: Mapped Metadata Total Records Counter */}
         <span className="text-xs font-bold text-secondary/90">
           Showing {historyLogs.length} of {pagination.total} conversations
@@ -291,11 +291,10 @@ export default function HistoryView() {
               key={pageNum}
               type="button"
               onClick={() => setCurrentPage(pageNum)}
-              className={`w-8 h-8 rounded-lg border text-xs font-extrabold shadow-sm transition-all ${
-                currentPage === pageNum
+              className={`w-8 h-8 rounded-lg border text-xs font-extrabold shadow-sm transition-all ${currentPage === pageNum
                   ? 'bg-primary text-white border-primary shadow-card'
                   : 'bg-white border-border-default text-heading hover:bg-slate-50'
-              }`}
+                }`}
             >
               {pageNum}
             </button>

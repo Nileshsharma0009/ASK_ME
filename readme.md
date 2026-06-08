@@ -1,6 +1,6 @@
-#  ASK_ME: Clinical RAG AI Companion
+#  VANI: Clinical RAG AI Companion
 
-`ASK_ME` is a premium, high-performance **Retrieval-Augmented Generation (RAG)** platform designed specifically for medical professionals, clinicians, and hospital administrators. It enables users to instantly query complex institutional medical documents, guidelines, clinical protocols, and PDF manual data via a modern web interface.
+`VANI` is a premium, high-performance **Retrieval-Augmented Generation (RAG)** platform designed specifically for medical professionals, clinicians, and hospital administrators. It enables users to instantly query complex institutional medical documents, guidelines, clinical protocols, and PDF manual data via a modern web interface.
 
 The system utilizes **Gemini** models for advanced natural language understanding and **Pinecone Vector Database** for fast, contextually accurate vector searches, backed by a Node.js/Express REST server and MongoDB for session records.
 
@@ -60,7 +60,7 @@ graph TD
 The workspace is organized into a clean decoupled backend/frontend monorepo pattern:
 
 ```text
-ASK_ME/
+VANI/
 ├── backend/                         # SERVER-SIDE LAYER (Node.js / Express)
 │   ├── src/
 │   │   ├── config/                  # Third-party configurations & connection keys
@@ -148,7 +148,7 @@ Follow these steps to configure and boot the application locally.
 ### Step 1: Clone the Repository
 ```bash
 git clone <repository-url>
-cd ASK_ME
+cd VANI
 ```
 
 ---
@@ -186,7 +186,7 @@ cd ASK_ME
 Before using the chat interface, load your clinical PDFs into Pinecone:
 
 1. Place your target `.pdf` clinical manuals inside the backend storage directories.
-2. Edit the pdf loader path `PDF_PATH` inside [indexing.js](file:///c:/Users/sharm/OneDrive/Desktop/ASK_ME/backend/src/rag/indexing.js#L15):
+2. Edit the pdf loader path `PDF_PATH` inside [indexing.js](file:///c:/Users/sharm/OneDrive/Desktop/VANI/backend/src/rag/indexing.js#L15):
    ```javascript
    const PDF_PATH = 'path/to/your/document.pdf';
    ```

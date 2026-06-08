@@ -7,12 +7,12 @@ import { AuthContext } from '../../context/AuthContext'; // Import added
 
 export default function ComplianceModal({ isOpen, onClose }) {
   const auth = useContext(AuthContext); // Context initialized
-  
+
   // 1. Core State Managers
   const [currentLang, setCurrentLang] = useState('en');
   const [isLangMenuOpen, setIsLangMenuOpen] = useState(false);
   const [remindPreference, setRemindPreference] = useState('session');
-  
+
   // Asynchronous API Config Registries
   const [backendConfig, setBackendConfig] = useState(null);
   const [loadingConfig, setLoadingConfig] = useState(true);
@@ -23,7 +23,7 @@ export default function ComplianceModal({ isOpen, onClose }) {
       setIsLangMenuOpen(false);
       return;
     }
-    
+
     const fetchComplianceConfig = async () => {
       try {
         setLoadingConfig(true);
@@ -51,10 +51,10 @@ export default function ComplianceModal({ isOpen, onClose }) {
         const userId = auth?.user?.id || auth?.user?._id;
         if (userId) {
           const baseUrl = import.meta.env.VITE_BACKEND_URL;
-          
+
           // 1. Database mein permanent mute set karein
           await api.patch(`${baseUrl}/auth/mute-compliance/${userId}`);
-          
+
           // 2. AuthContext state ko update karein taaki ChatPanel ko turant update mile
           if (auth?.updateUser) {
             auth.updateUser({ ...auth.user, hasMutedCompliance: true });
@@ -64,7 +64,7 @@ export default function ComplianceModal({ isOpen, onClose }) {
         }
       } else {
         // Tab-Session fallback logic
-        sessionStorage.setItem('ask_me_session_compliance_viewed', 'true');
+        sessionStorage.setItem('VANI_session_compliance_viewed', 'true');
       }
     } catch (err) {
       console.error("Compliance configuration update failed:", err);
@@ -82,11 +82,11 @@ export default function ComplianceModal({ isOpen, onClose }) {
 
   const modalVariants = {
     hidden: { opacity: 0, scale: 0.95, y: 16 },
-    visible: { 
-      opacity: 1, 
-      scale: 1, 
-      y: 0, 
-      transition: { type: "spring", stiffness: 260, damping: 26, staggerChildren: 0.04 } 
+    visible: {
+      opacity: 1,
+      scale: 1,
+      y: 0,
+      transition: { type: "spring", stiffness: 260, damping: 26, staggerChildren: 0.04 }
     },
     exit: { opacity: 0, scale: 0.97, y: 8, transition: { duration: 0.18 } }
   };
@@ -100,9 +100,9 @@ export default function ComplianceModal({ isOpen, onClose }) {
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 perspective-[1000px]">
-          
+
           {/* BACKGROUND BLUR OVERLAY - Removed onClick to prevent accidental closure */}
-          <motion.div 
+          <motion.div
             variants={overlayVariants}
             initial="hidden"
             animate="visible"
@@ -155,7 +155,7 @@ export default function ComplianceModal({ isOpen, onClose }) {
 
                     <AnimatePresence>
                       {isLangMenuOpen && (
-                        <motion.div 
+                        <motion.div
                           initial={{ opacity: 0, y: 6, scale: 0.96 }}
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: 6, scale: 0.96 }}
@@ -169,9 +169,8 @@ export default function ComplianceModal({ isOpen, onClose }) {
                                 setCurrentLang(lang.code);
                                 setIsLangMenuOpen(false);
                               }}
-                              className={`w-full flex items-center justify-between px-3 py-2.5 text-xs font-black rounded-xl text-left transition-all cursor-pointer font-sans ${
-                                currentLang === lang.code ? 'bg-primary/10 text-primary' : 'text-body hover:bg-slate-50'
-                              }`}
+                              className={`w-full flex items-center justify-between px-3 py-2.5 text-xs font-black rounded-xl text-left transition-all cursor-pointer font-sans ${currentLang === lang.code ? 'bg-primary/10 text-primary' : 'text-body hover:bg-slate-50'
+                                }`}
                             >
                               <span>{lang.native}</span>
                               {currentLang === lang.code && <FiCheck className="w-4 h-4 text-primary stroke-[3]" />}
@@ -234,7 +233,7 @@ export default function ComplianceModal({ isOpen, onClose }) {
                       </div>
                       <span className="group-hover:text-heading transition-colors duration-100 font-semibold font-sans">{text.optNever}</span>
                     </label>
-                    
+
                     <label className="flex items-center gap-3 cursor-pointer select-none text-xs font-bold text-secondary group">
                       <input type="radio" name="compliance-pref-sheet" checked={remindPreference === 'session'} onChange={() => setRemindPreference('session')} className="sr-only" />
                       <div className={`w-4.5 h-4.5 rounded-full border-2 flex items-center justify-center ${remindPreference === 'session' ? 'border-primary bg-primary/10' : 'border-slate-300 bg-white'}`}>

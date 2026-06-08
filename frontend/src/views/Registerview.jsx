@@ -83,12 +83,12 @@ export default function RegisterView() {
     setLoading(true);
     try {
       // Clear legacy session tokens automatically on a fresh registration stream entry
-      sessionStorage.removeItem('ask_me_session_compliance_viewed');
+      sessionStorage.removeItem('VANI_session_compliance_viewed');
 
       const baseUrl = import.meta.env.VITE_BACKEND_URL;
 
       console.log("Backend URL:", baseUrl);
-console.log("Login URL:", `${baseUrl}/auth/register`);
+      console.log("Login URL:", `${baseUrl}/auth/register`);
 
       await api.post(`${baseUrl}/auth/register`, {
         name: trimmedName,
@@ -125,7 +125,7 @@ console.log("Login URL:", `${baseUrl}/auth/register`);
 
   return (
     <div className="min-h-screen relative bg-indigo-50 flex items-center justify-center p-4 antialiased overflow-hidden">
-      <div 
+      <div
         className="absolute inset-0 overflow-hidden pointer-events-none z-0"
         onMouseMove={(e) => {
           const { currentTarget, clientX, clientY } = e;
@@ -137,7 +137,7 @@ console.log("Login URL:", `${baseUrl}/auth/register`);
         }}
         style={{ '--mouse-x': '0px', '--mouse-y': '0px', pointerEvents: 'auto' }}
       >
-        <div 
+        <div
           className="absolute inset-0 transition-transform duration-300 ease-out"
           style={{
             backgroundImage: `

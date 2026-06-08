@@ -18,83 +18,83 @@ export default function LoginView() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-//   const handleLogin = async (e) => {
-//     e.preventDefault();
-//     setLoading(true);
-//     setError('');
+  //   const handleLogin = async (e) => {
+  //     e.preventDefault();
+  //     setLoading(true);
+  //     setError('');
 
-//     const cleanEmail = username.trim();
+  //     const cleanEmail = username.trim();
 
-//     /* ==========================================================================
-//        STRICT SECURITY CHECK: COMPLIANCE INPUT VALIDATION ENGINE
-//        ========================================================================== */
-//     if (cleanEmail.length >= 30) {
-//       setError('Username/Email must be less than 30 characters');
-//       setLoading(false);
-//       return;
-//     }
+  //     /* ==========================================================================
+  //        STRICT SECURITY CHECK: COMPLIANCE INPUT VALIDATION ENGINE
+  //        ========================================================================== */
+  //     if (cleanEmail.length >= 30) {
+  //       setError('Username/Email must be less than 30 characters');
+  //       setLoading(false);
+  //       return;
+  //     }
 
-//     if (password.length >= 12) {
-//       setError('Password must be less than 12 characters');
-//       setLoading(false);
-//       return;
-//     }
+  //     if (password.length >= 12) {
+  //       setError('Password must be less than 12 characters');
+  //       setLoading(false);
+  //       return;
+  //     }
 
-//     try {
-//       /* ==========================================================================
-//          CRITICAL HANDSHAKE: FLUSH OLD SESSION ON CLEAN AUTHENTICATION
-//          Explicitly purges any saved session keys BEFORE logging in new user profile.
-//          ========================================================================== */
-//       sessionStorage.removeItem('ask_me_session_compliance_viewed');
+  //     try {
+  //       /* ==========================================================================
+  //          CRITICAL HANDSHAKE: FLUSH OLD SESSION ON CLEAN AUTHENTICATION
+  //          Explicitly purges any saved session keys BEFORE logging in new user profile.
+  //          ========================================================================== */
+  //       sessionStorage.removeItem('VANI_session_compliance_viewed');
 
-//       const baseUrl = import.meta.env.VITE_BACKEND_URL; 
+  //       const baseUrl = import.meta.env.VITE_BACKEND_URL; 
 
-//       console.log("Backend URL:", baseUrl);
-// console.log("Login URL:", `${baseUrl}/auth/login`);
+  //       console.log("Backend URL:", baseUrl);
+  // console.log("Login URL:", `${baseUrl}/auth/login`);
 
-//       const { data } = await api.post(`${baseUrl}/auth/login`, {
-//         email: cleanEmail,
-//         password,
-//       });
+  //       const { data } = await api.post(`${baseUrl}/auth/login`, {
+  //         email: cleanEmail,
+  //         password,
+  //       });
 
-//       auth.login(data.user, data.token, { persist: rememberMe });
-//       if (env.postLoginPath) {
-//         navigate(env.postLoginPath, { replace: true });
-//       }
-//     } catch (err) {
-//       setError(err.response?.data?.message || 'Login failed');
-//     } finally {
-//       setLoading(false);
-//     }
-//   };
+  //       auth.login(data.user, data.token, { persist: rememberMe });
+  //       if (env.postLoginPath) {
+  //         navigate(env.postLoginPath, { replace: true });
+  //       }
+  //     } catch (err) {
+  //       setError(err.response?.data?.message || 'Login failed');
+  //     } finally {
+  //       setLoading(false);
+  //     }
+  //   };
 
-const handleLogin = async (e) => {
-  e.preventDefault();
-  setLoading(true);
-  setError('');
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
 
-  try {
-    sessionStorage.removeItem('ask_me_session_compliance_viewed');
+    try {
+      sessionStorage.removeItem('VANI_session_compliance_viewed');
 
-    // CORRECT: Use relative path. 
-    // Axios will automatically use the baseURL defined in api.js
-    const { data } = await api.post("/auth/login", {
-      email: username.trim(),
-      password: password,
-    });
+      // CORRECT: Use relative path. 
+      // Axios will automatically use the baseURL defined in api.js
+      const { data } = await api.post("/auth/login", {
+        email: username.trim(),
+        password: password,
+      });
 
-    auth.login(data.user, data.token, { persist: rememberMe });
-    if (env.postLoginPath) {
-      navigate(env.postLoginPath, { replace: true });
+      auth.login(data.user, data.token, { persist: rememberMe });
+      if (env.postLoginPath) {
+        navigate(env.postLoginPath, { replace: true });
+      }
+    } catch (err) {
+      // This logs exactly what the backend rejected
+      console.error("Full Error:", err.response?.data);
+      setError(err.response?.data?.message || 'Login failed');
+    } finally {
+      setLoading(false);
     }
-  } catch (err) {
-    // This logs exactly what the backend rejected
-    console.error("Full Error:", err.response?.data);
-    setError(err.response?.data?.message || 'Login failed');
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const containerVariants = {
     hidden: { opacity: 0, y: 10 },
@@ -116,7 +116,7 @@ const handleLogin = async (e) => {
 
   return (
     <div className="min-h-screen relative bg-indigo-50 flex items-center justify-center p-4 antialiased overflow-hidden">
-      <div 
+      <div
         className="absolute inset-0 overflow-hidden pointer-events-none z-0"
         onMouseMove={(e) => {
           const { currentTarget, clientX, clientY } = e;
@@ -128,7 +128,7 @@ const handleLogin = async (e) => {
         }}
         style={{ '--mouse-x': '0px', '--mouse-y': '0px', pointerEvents: 'auto' }}
       >
-        <div 
+        <div
           className="absolute inset-0 transition-transform duration-300 ease-out"
           style={{
             backgroundImage: `

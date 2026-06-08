@@ -37,15 +37,39 @@ const model = new ChatGoogleGenerativeAI({
 const pinecone = new Pinecone();
 const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX_NAME);
 
-async function chatting(question) {
+async function chatting(question, history = []) {
     try {
+        let searchExpression = question;
+        if (history && history.length > 0) {
+            const reformulatePrompt = `Given the following conversation history and a follow-up question, rewrite the follow-up question to be a standalone, detailed search query that can be used to query a vector database for relevant medical/facility info.
+Do not answer the question, just return the rewritten search query. If the question is already a standalone search query, return it exactly as is.
+
+Conversation History:
+${history.map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\n')}
+
+Follow-up Question: ${question}
+
+Standalone Search Query:`;
+
+            try {
+                const response = await model.invoke(reformulatePrompt);
+                const rewritten = response.content.toString().trim();
+                if (rewritten && rewritten.length > 0) {
+                    searchExpression = rewritten;
+                    console.log(`[RAG Memory] Reformulated query: "${searchExpression}" (Original: "${question}")`);
+                }
+            } catch (err) {
+                console.error("Failed to rewrite query, falling back to original:", err);
+            }
+        }
+
         // Initialize the PineconeStore instance so LangChain manages retrieval format seamlessly
         const vectorStore = await PineconeStore.fromExistingIndex(embeddings, {
             pineconeIndex,
         });
 
         // Use similarity search to fetch top 10 relevant documents
-        const searchResults = await vectorStore.similaritySearch(question, 10);
+        const searchResults = await vectorStore.similaritySearch(searchExpression, 10);
 
         // Map the document content accurately using LangChain's standard property
         const context = searchResults
@@ -55,16 +79,18 @@ async function chatting(question) {
         const promptTemplate = PromptTemplate.fromTemplate(`
 You are a helpful assistant answering questions based on the provided documentation.
 
+Conversation history:
+{history}
+
 Context from the documentation:
 {context}
 
 Question: {question}
 
 Instructions:
-- Answer the question using ONLY the information from the context above
+- Answer the question using the context above. Take the conversation history into account if it is a follow-up.
 - If the answer is not in the context, say "I don't have enough information to answer that question."
-- Be concise and clear
-- Use code examples from the context if relevant
+- Be concise and clear.
 
 Answer:
         `);
@@ -75,9 +101,14 @@ Answer:
             new StringOutputParser(),
         ]);
 
+        const formattedHistory = history && history.length > 0
+            ? history.map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`).join('\n')
+            : "No previous conversation history.";
+
         // Invoke the chain and get the answer
         const answer = await chain.invoke({
             context: context,
+            history: formattedHistory,
             question: question,
         }); 
 
