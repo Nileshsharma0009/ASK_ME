@@ -31,7 +31,7 @@ setInterval(reloadWebsite, interval);
 
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://ask-me-red-xi.vercel.app"
+  "https://vani-x.vercel.app"
 ];
 
 if (process.env.FRONTEND_URL) {
