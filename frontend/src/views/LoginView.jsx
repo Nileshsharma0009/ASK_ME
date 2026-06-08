@@ -89,7 +89,7 @@ export default function LoginView() {
       }
     } catch (err) {
       // This logs exactly what the backend rejected
-      console.error("Full Error:", err.response?.data);
+      // console.error("Full Error:", err.response?.data);
       setError(err.response?.data?.message || 'Login failed');
     } finally {
       setLoading(false);
