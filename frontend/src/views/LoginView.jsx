@@ -162,7 +162,7 @@ export default function LoginView() {
                 </div>
               </motion.div>
             </div>
-            <h1 className="text-3xl font-extrabold text-heading tracking-tight mb-1">ASK<span className="text-primary">_ME</span></h1>
+            <h1 className="text-3xl font-extrabold text-heading tracking-tight mb-1">VA<span className="text-primary">NI</span></h1>
             <p className="text-xs font-semibold tracking-wide text-secondary/90">AI Assistant for Healthcare</p>
           </div>
 

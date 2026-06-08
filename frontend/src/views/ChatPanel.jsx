@@ -263,11 +263,14 @@ export default function ChatPanel() {
     }
   };
 
-  const quickPrompts = [
-    'Summarize the ICU sedation protocol.',
-    'Check the fallback steps for Medication X.',
-    'What are the post-operative care guidelines?',
-  ];
+const quickPrompts = [
+  'Which doctor should I consult for my symptoms?',
+  'How can I book an appointment?',
+  'What are the MRI and CT scan charges?',
+  'Where can I collect my reports?',
+  'What tests require fasting before sample collection?',
+  'How do I get admitted to the hospital?',
+];
 
   return (
     <div className="relative flex h-full min-h-0 flex-col overflow-hidden">
@@ -307,7 +310,7 @@ export default function ChatPanel() {
                   className="relative mx-auto flex h-24 w-24 items-center justify-center rounded-[32px] bg-card-bg border border-border-default shadow-card ring-4 ring-primary/5 overflow-hidden"
                 >
                   <div className="flex h-16 w-16 items-center justify-center rounded-[24px] overflow-hidden bg-white shadow-xl shadow-primary/30 ring-1 ring-white/20 transform-gpu transition-transform duration-300 hover:rotate-3">
-                    <img src="/logo.png" alt="Hospital Logo Badge" className="w-full h-full object-cover scale-120 -m-2 select-none pointer-events-none" />
+                    <img src="/logo2.png" alt="Hospital Logo Badge" className="w-full h-full object-cover scale-120 -m-2 select-none pointer-events-none" />
                   </div>
                 </motion.div>
               </div>
@@ -316,8 +319,8 @@ export default function ChatPanel() {
                 VA<span className="text-primary bg-clip-text bg-gradient-to-r from-primary to-primary-muted">NI</span>
               </h1>
               <p className="mx-auto mt-6 max-w-2xl text-[15px] sm:text-[16px] font-medium leading-8 text-secondary text-center tracking-normal">
-                Hey! I am your dedicated clinical AI companion, here to instantly solve your queries regarding <span className="text-primary font-bold">Hospital XYZ</span>, interpret medical knowledge logs, and assist with institutional workflows.
-              </p>
+  Hey! I'm your AI hospital assistant, here to help with appointments, doctors, lab tests, reports, hospital support, and healthcare services.
+</p>
 
               <div className="w-16 h-[2px] bg-gradient-to-r from-transparent via-border-default to-transparent mt-8 mb-4" />
 
@@ -399,7 +402,7 @@ export default function ChatPanel() {
 
 
       {/* FIXED FOOTER CONTROL INPUT CONSOLE STRIP */}
-      <div className={`absolute inset-x-0 bottom-0 px-4 pb-5 sm:px-6 lg:px-10 z-20 transition-all duration-300 ${isComplianceOpen ? 'opacity-20 pointer-events-none scale-98' : 'opacity-100 scale-100'
+      <div className={`absolute inset-x-0 bottom-0 px-4 pb-3 sm:px-6 lg:px-10 z-20 transition-all duration-300 ${isComplianceOpen ? 'opacity-20 pointer-events-none scale-98' : 'opacity-100 scale-100'
         }`}>
         <div className="mx-auto w-full max-w-4xl">
           <form
@@ -425,7 +428,7 @@ export default function ChatPanel() {
                 value={inputMessage}
                 onChange={(event) => setInputMessage(event.target.value)}
                 onKeyDown={handleKeyDown}
-                className="max-h-52 min-h-[14px] flex-1 resize-none overflow-y-auto bg-transparent px-1 py-3 text-[15px] leading-7 text-heading outline-none placeholder:text-placeholder"
+                className="max-h-52 min-h-[10px] flex-1 resize-none overflow-y-auto bg-transparent px-1 py-3 text-[15px] leading-7 text-heading outline-none placeholder:text-placeholder"
               />
 
               <button
@@ -449,7 +452,7 @@ export default function ChatPanel() {
                   <span>
                     {isGenerating
                       ? 'Generating. Press Stop to cancel this answer.'
-                      : 'AI-generated medical responses can contain errors. For official medication and precautions, consult a certified professional.'}
+                      : 'Vani cannot provide diagnosis or medical treatment advice.'}
                   </span>
                 </div>
               </div>
