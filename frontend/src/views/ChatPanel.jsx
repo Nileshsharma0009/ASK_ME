@@ -243,7 +243,7 @@ export default function ChatPanel() {
           {
             _id: `temp-error-${Date.now()}`,
             sender: 'ai',
-            text: error.response?.data?.message || 'Unable to complete the RAG response right now.',
+            text: error.response?.data?.message || 'Unable to complete the  response right now try again after some time.',
             isError: true,
           },
         ];
