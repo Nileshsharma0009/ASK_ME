@@ -365,7 +365,7 @@ const quickPrompts = [
                         <div>
                           <p className="text-sm font-bold text-heading">VANI</p>
                           <p className="text-xs font-medium text-secondary">
-                            {isPending ? 'Generating response' : isStopped ? 'Stopped' : 'Clinical assistant'}
+                            {isPending ? ' Reviewing your query' : isStopped ? 'Stopped' : 'Clinical assistant'}
                           </p>
                         </div>
                       </div>
