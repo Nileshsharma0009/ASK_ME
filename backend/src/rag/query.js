@@ -2,19 +2,33 @@ import { GoogleGenerativeAIEmbeddings, ChatGoogleGenerativeAI } from '@langchain
 import { Pinecone } from '@pinecone-database/pinecone';
 import { PineconeStore } from '@langchain/pinecone'; // Added this import
 import * as dotenv from 'dotenv';
-dotenv.config();
+import path from 'path';
+import { fileURLToPath } from 'url';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+dotenv.config({ path: path.resolve(__dirname, '../../.env') });
 import { PromptTemplate } from '@langchain/core/prompts';
 import { StringOutputParser } from '@langchain/core/output_parsers';
 import { RunnableSequence } from '@langchain/core/runnables';
 
+class GoogleGenerativeAIEmbeddings768 extends GoogleGenerativeAIEmbeddings {
+    _convertToContent(text) {
+        const req = super._convertToContent(text);
+        req.outputDimensionality = 768;
+        return req;
+    }
+}
+
 // Configuration
-const embeddings = new GoogleGenerativeAIEmbeddings({
-    apiKey: process.env.GEMINI_API_KEY,
-    model: 'text-embedding-004',
+const embeddings = new GoogleGenerativeAIEmbeddings768({
+    apiKey: process.env.GOOGLE_API_KEY,
+    model: 'gemini-embedding-001',
 });
 
 const model = new ChatGoogleGenerativeAI({
-    apiKey: process.env.GEMINI_API_KEY,
+    apiKey: process.env.GOOGLE_API_KEY,
     model: 'gemini-2.5-flash',  
     temperature: 0.3, 
 });
