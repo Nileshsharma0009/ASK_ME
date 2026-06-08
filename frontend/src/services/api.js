@@ -29,7 +29,6 @@ api.interceptors.request.use(
     }
     
     // Debugging: Log every request made
-    console.log(`[API Request]: ${config.method.toUpperCase()} ${config.baseURL}${config.url}`, config.data);
     
     return config;
   },
@@ -43,7 +42,7 @@ api.interceptors.response.use(
   },
   (error) => {
     // Debugging: Log every error
-    console.error(`[API Error]:`, error.response?.status, error.response?.data);
+    // console.error(`[API Error]:`, error.response?.status, error.response?.data);
 
     if (error.response?.status === 401 && !window.location.pathname.includes('/login')) {
       localStorage.clear();
