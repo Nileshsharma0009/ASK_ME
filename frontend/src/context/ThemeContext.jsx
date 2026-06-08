@@ -16,9 +16,13 @@ function getSystemTheme() {
 }
 
 function resolveTheme(themeSetting) {
+  // Force light theme only for now (will restore later)
+  return 'light';
+  /*
   if (themeSetting === 'Dark') return 'dark';
   if (themeSetting === 'Light') return 'light';
   return getSystemTheme();
+  */
 }
 
 function applyThemeToDocument(theme) {
