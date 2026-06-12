@@ -65,7 +65,7 @@ async function indexing() {
     
     // pdf file ko load kariye
    
-const PDF_PATH = path.resolve(__dirname, './RagDoc.pdf');
+const PDF_PATH = path.resolve(__dirname, './VANI_DATA.pdf');
     
 const loader = new PDFLoader(PDF_PATH);
 const rawDocs = await loader.load(); // 
@@ -96,6 +96,9 @@ const rawDocs = await loader.load(); //
     const pinecone = new Pinecone();
     const pineconeIndex = pinecone.Index(process.env.PINECONE_INDEX_NAME);
 
+    // clear the old index vectors (hospital data)
+    console.log("Clearing all existing vectors from Pinecone index...");
+    await pineconeIndex.deleteAll();
 
     // single step--> ChunkedDocs-->Embedding --> Vector DB
 
