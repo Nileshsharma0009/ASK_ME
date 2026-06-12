@@ -262,14 +262,14 @@ export default function ChatPanel() {
       handleSendMessage(inputMessage);
     }
   };
-
-const quickPrompts = [
-  'Which doctor should I consult for my symptoms?',
-  'How can I book an appointment?',
-  'What are the MRI and CT scan charges?',
-  'Where can I collect my reports?',
-  'What tests require fasting before sample collection?',
-  'How do I get admitted to the hospital?',
+const maritimeQuestions = [
+  'What is the role of the Master and why is their authority absolute?',
+  'Why is the rudder critical and how does the steering gear move it?',
+  'What is the purpose of bottom paint (antifouling)?',
+  'What is "Scope" in anchoring and why does it matter?',
+  'Why do we use "Port" and "Starboard" instead of "Left" and "Right"?',
+  'What does "Roger" mean in radio communication?',
+  'What is the role of the Boatswain in the deck department?',
 ];
 
   return (
