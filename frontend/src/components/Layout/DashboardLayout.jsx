@@ -19,7 +19,7 @@ import { env } from '../../config/env';
 
 // 1. Clean Configuration for Navigation Items
 const NAV_ITEMS = [
-  { to: '.', end: true, label: 'VANI', icon: FiMessageSquare, segment: 'chat' },
+  { to: '.', end: true, label: 'ASK_ME', icon: FiMessageSquare, segment: 'chat' },
   { to: 'New chat', label: 'New chat', icon: FiUploadCloud, segment: 'New chat' },
   { to: 'history', label: 'History', icon: FiClock, segment: 'history' },
   { to: 'profile', label: 'Profile', icon: FiUser, segment: 'profile' },
@@ -35,7 +35,7 @@ const PAGE_TITLES = {
     </div>
   ),
   'New chat': 'Start a New Workspace Session',
-  upload: 'Upload Medical Knowledge',
+  upload: 'Upload Maritime Knowledge',
   history: 'Query History Log',
   profile: 'User Profile Analytics',
   settings: 'System Configuration',
@@ -63,7 +63,7 @@ export default function DashboardLayout() {
     setAnimatedMessageId
   } = useContext(ChatContext);
 
-  const userDisplayName = auth?.user?.name || 'Medical Officer';
+  const userDisplayName = auth?.user?.name || 'Maritime Officer';
   const userDepartment = auth?.user?.department || '';
 
   const segment = getActiveSegment(location.pathname);
@@ -117,12 +117,12 @@ export default function DashboardLayout() {
                 className="flex items-center gap-3 overflow-hidden cursor-pointer select-none active:scale-98 transition-all duration-200"
               >
                 <div className="w-10 h-10 rounded-xl overflow-hidden flex items-center justify-center shrink-0 shadow-md shadow-primary/10 bg-white">
-                  <img src="/logo2.png" alt="Hospital Logo" className="w-full h-full object-cover" />
+                  <img src="/logo2.png" alt="Maritime Logo" className="w-full h-full object-cover" />
                 </div>
                 {isSidebarOpen && (
                   <motion.div initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} className="whitespace-nowrap">
-                    <h1 className="text-base font-black tracking-tight text-heading">VA<span className="text-primary">NI</span></h1>
-                    <p className="text-[9px] uppercase tracking-widest text-secondary font-extrabold">Clinical RAG Engine</p>
+                    <h1 className="text-base font-black tracking-tight text-heading">ASK<span className="text-primary">_ME</span></h1>
+                    <p className="text-[9px] uppercase tracking-widest text-secondary font-extrabold">Maritime RAG Engine</p>
                   </motion.div>
                 )}
               </div>

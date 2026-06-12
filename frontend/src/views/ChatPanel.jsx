@@ -310,16 +310,16 @@ const quickPrompts = [
                   className="relative mx-auto flex h-24 w-24 items-center justify-center rounded-[32px] bg-card-bg border border-border-default shadow-card ring-4 ring-primary/5 overflow-hidden"
                 >
                   <div className="flex h-16 w-16 items-center justify-center rounded-[24px] overflow-hidden bg-white shadow-xl shadow-primary/30 ring-1 ring-white/20 transform-gpu transition-transform duration-300 hover:rotate-3">
-                    <img src="/logo2.png" alt="Hospital Logo Badge" className="w-full h-full object-cover scale-120 -m-2 select-none pointer-events-none" />
+                    <img src="/logo2.png" alt="Maritime Logo Badge" className="w-full h-full object-cover scale-120 -m-2 select-none pointer-events-none" />
                   </div>
                 </motion.div>
               </div>
 
               <h1 className="text-5xl font-black tracking-tight text-heading sm:text-6xl text-center font-sans">
-                VA<span className="text-primary bg-clip-text bg-gradient-to-r from-primary to-primary-muted">NI</span>
+                ASK_<span className="text-primary bg-clip-text bg-gradient-to-r from-primary to-primary-muted">ME</span>
               </h1>
               <p className="mx-auto mt-6 max-w-2xl text-[15px] sm:text-[16px] font-medium leading-8 text-secondary text-center tracking-normal">
-  Hey! I'm your AI hospital assistant, here to help with appointments, doctors, lab tests, reports, hospital support, and healthcare services.
+  Hey! I'm your maritime AI assistant, here to help with shipping regulations, safety protocols, and merchant navy operations.
 </p>
 
               <div className="w-16 h-[2px] bg-gradient-to-r from-transparent via-border-default to-transparent mt-8 mb-4" />
@@ -363,9 +363,9 @@ const quickPrompts = [
                           <img src="/logo.png" alt="AI" className="w-full h-full object-cover" />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-heading">VANI</p>
+                          <p className="text-sm font-bold text-heading">ASK_ME</p>
                           <p className="text-xs font-medium text-secondary">
-                            {isPending ? ' Reviewing your query' : isStopped ? 'Stopped' : 'Clinical assistant'}
+                            {isPending ? ' Reviewing your query' : isStopped ? 'Stopped' : 'Maritime assistant'}
                           </p>
                         </div>
                       </div>
@@ -424,7 +424,7 @@ const quickPrompts = [
               <textarea
                 ref={textareaRef}
                 rows={1}
-                placeholder="Message VANI"
+                placeholder="Message ASK_ME"
                 value={inputMessage}
                 onChange={(event) => setInputMessage(event.target.value)}
                 onKeyDown={handleKeyDown}
@@ -452,7 +452,7 @@ const quickPrompts = [
                   <span>
                     {isGenerating
                       ? 'Generating. Press Stop to cancel this answer.'
-                      : 'Vani cannot provide diagnosis or medical treatment advice.'}
+                      : 'ASK_ME is a maritime RAG assistant. Verify critical navigation/safety decisions with official documentation.'}
                   </span>
                 </div>
               </div>

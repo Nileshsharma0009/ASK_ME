@@ -137,7 +137,7 @@ export default function HistoryView() {
       {/* HEADER SECTION: Title Typography Block */}
       <div>
         <h3 className="text-xl font-extrabold text-heading tracking-tight">Conversation History</h3>
-        <p className="text-xs font-semibold text-secondary mt-0.5">View, reopen, and delete your saved VANI chats</p>
+        <p className="text-xs font-semibold text-secondary mt-0.5">View, reopen, and delete your saved ASK_ME chats</p>
       </div>
 
       {/* ==========================================================================

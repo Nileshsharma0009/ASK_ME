@@ -16,10 +16,10 @@ export default function SettingsView() {
   const [hasMutedCompliance, setHasMutedCompliance] = useState(auth?.user?.hasMutedCompliance ?? false);
   
   const [responseStyle, setResponseStyle] = useState('Balanced');
-  const [defaultSource, setDefaultSource] = useState('Hospital Database First');
+  const [defaultSource, setDefaultSource] = useState('Maritime Database First');
   const [confidenceThreshold, setConfidenceThreshold] = useState(0.68);
   const [autoDeleteTimeline, setAutoDeleteTimeline] = useState('After 24 Hours');
-  const [dataUsagePolicy, setDataUsagePolicy] = useState('Hospital Data Only');
+  const [dataUsagePolicy, setDataUsagePolicy] = useState('Maritime Data Only');
   const [isSaving, setIsSaving] = useState(false);
   const [syncStatus, setSyncStatus] = useState('');
 
@@ -99,7 +99,7 @@ export default function SettingsView() {
             <div className="flex items-center gap-3">
               <FiShield className="text-primary w-5 h-5" />
               <div>
-                <p className="text-sm font-bold text-heading">Clinical Guidelines</p>
+                <p className="text-sm font-bold text-heading">Maritime Guidelines</p>
                 <p className="text-[11px] font-medium text-secondary">Review system boundaries</p>
               </div>
             </div>

@@ -158,12 +158,12 @@ export default function LoginView() {
             <div className="flex justify-center mb-3">
               <motion.div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center border-2 border-primary/20 shadow-card overflow-hidden" whileHover={{ scale: 1.03 }}>
                 <div className="w-full h-full overflow-hidden flex items-center justify-center bg-white">
-                  <img src="/logo2.png" alt="Hospital Logo" className="w-full h-full object-contain" />
+                  <img src="/logo2.png" alt="Maritime Logo" className="w-full h-full object-contain" />
                 </div>
               </motion.div>
             </div>
-            <h1 className="text-3xl font-extrabold text-heading tracking-tight mb-1">VA<span className="text-primary">NI</span></h1>
-            <p className="text-xs font-semibold tracking-wide text-secondary/90">AI Assistant for Healthcare</p>
+            <h1 className="text-3xl font-extrabold text-heading tracking-tight mb-1">ASK<span className="text-primary">_ME</span></h1>
+            <p className="text-xs font-semibold tracking-wide text-secondary/90">AI Assistant for Maritime & Shipping</p>
           </div>
 
           {error && (
