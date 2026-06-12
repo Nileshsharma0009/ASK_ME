@@ -1,19 +1,32 @@
-#  VANI: Clinical RAG AI Companion
+# ASK_ME: Maritime RAG AI Companion
 
-`VANI` is a premium, high-performance **Retrieval-Augmented Generation (RAG)** platform designed specifically for medical professionals, clinicians, and hospital administrators. It enables users to instantly query complex institutional medical documents, guidelines, clinical protocols, and PDF manual data via a modern web interface.
+`ASK_ME` is a premium, high-performance **Retrieval-Augmented Generation (RAG)** platform designed specifically for maritime professionals, sailors, and merchant navy officers. It enables users to instantly query complex shipping manuals, safety protocols, maritime regulations, and merchant navy documentation via a modern web interface.
 
 The system utilizes **Gemini** models for advanced natural language understanding and **Pinecone Vector Database** for fast, contextually accurate vector searches, backed by a Node.js/Express REST server and MongoDB for session records.
 
 ---
 
-##  Features
+## ⚓ Features
 
-- ** Intelligent Clinical RAG Pipeline**: Combines Pinecone Vector DB with Google's `gemini-2.5-flash` model and `text-embedding-004` to provide accurate answers sourced *only* from verified clinical documents.
-- ** Secure Authentication**: Includes JWT-based session security, bcrypt password hashing, and inputs hardened against NoSQL injection vectors.
-- ** PDF Ingestion & Indexing**: Automatically processes, splits, embeds, and uploads clinical manuals/protocols directly into a vector space index.
-- ** Session & Chat Log History**: Saves and updates multi-turn conversation threads in MongoDB with pagination, search, and delete controls.
-- ** Dynamic Compliance Gatekeeping**: Features an interactive compliance portal consent flow for medical officers with session tracking and permanent database muting preferences.
-- ** Premium Responsive UI**: A visually stunning dark-mode/glassmorphic web dashboard built using React, Tailwind CSS, Framer Motion, and GSAP micro-animations.
+- **Intelligent Maritime RAG Pipeline**: Combines Pinecone Vector DB with Google's `gemini-2.5-flash` model and `gemini-embedding-001` (or `text-embedding-004`) to provide accurate answers sourced *only* from verified maritime documents and shipping manuals.
+- **Secure Authentication**: Includes JWT-based session security, bcrypt password hashing, and inputs hardened against NoSQL injection vectors.
+- **PDF Ingestion & Indexing**: Automatically processes, splits, embeds, and uploads maritime manuals/protocols directly into a vector space index.
+- **Session & Chat Log History**: Saves and updates multi-turn conversation threads in MongoDB with pagination, search, and delete controls.
+- **Dynamic Compliance Gatekeeping**: Features an interactive compliance portal consent flow for deck/engine officers with session tracking and permanent database muting preferences.
+- **Premium Responsive UI**: A visually stunning dark-mode/glassmorphic web dashboard built using React, Tailwind CSS, Framer Motion, and GSAP micro-animations.
+
+---
+
+## 🚢 Example Maritime Queries
+
+The application is pre-configured with quick-access maritime prompts to test and query:
+- *What is the role of the Master and why is their authority absolute?*
+- *Why is the rudder critical and how does the steering gear move it?*
+- *What is the purpose of bottom paint (antifouling)?*
+- *What is "Scope" in anchoring and why does it matter?*
+- *Why do we use "Port" and "Starboard" instead of "Left" and "Right"?*
+- *What does "Roger" mean in radio communication?*
+- *What is the role of the Boatswain in the deck department?*
 
 ---
 
@@ -30,7 +43,7 @@ graph TD
     classDef ai fill:#8b5cf6,stroke:#6d28d9,color:#fff,stroke-width:2px;
 
     %% Components
-    User((User ))
+    User((User))
     UI[React Web App Client]:::client
     API[Express App API Server]:::server
     MDB[(MongoDB Database)]:::database
@@ -55,19 +68,19 @@ graph TD
 
 ---
 
-##  Directory Structure
+## Directory Structure
 
 The workspace is organized into a clean decoupled backend/frontend monorepo pattern:
 
 ```text
-VANI/
+ASK_ME/
 ├── backend/                         # SERVER-SIDE LAYER (Node.js / Express)
 │   ├── src/
 │   │   ├── config/                  # Third-party configurations & connection keys
 │   │   │   ├── db.js                # MongoDB Mongoose connection client
 │   │   │   └── gemini.js            # Gemini LLM & Text Embedding instantiation
 │   │   ├── models/                  # Operational Mongoose Database Schemas
-│   │   │   ├── UserModel.js         # Schema for Doctors, Staff, and Administrators
+│   │   │   ├── UserModel.js         # Schema for Officers, Staff, and Administrators
 │   │   │   └── ChatHistory.js       # Stores chat memory sessions for context recall
 │   │   ├── controllers/             # Request Controllers (Validates payload data)
 │   │   │   ├── auth.controller.js   # Logic for staff onboarding and login
@@ -78,7 +91,7 @@ VANI/
 │   │   │   ├── chat.routes.js       # /api/chat/* (message, history, deletion)
 │   │   │   └── system.routes.js     # /api/system/* (compliance config settings)
 │   │   ├── middleware/              # Security and Error Traps
-│   │   │   ├── auth.middleware.js   # Intercepts routes to validate JWT staff keys
+│   │   │   ├── auth.middleware.js   # Intercepts routes to validate JWT keys
 │   │   │   └── error.middleware.js  # Global failure catcher
 │   │   ├── rag/                     # CORE RAG AI PIPELINE (LangChain)
 │   │   │   ├── indexing.js          # Ingestion runner loading PDFs to Pinecone
@@ -112,7 +125,7 @@ VANI/
 
 ---
 
-##  Tech Stack
+## Tech Stack
 
 ### Frontend
 * **React 18 + Vite**: High-performance UI loading and rapid build compilation.
@@ -128,19 +141,19 @@ VANI/
 
 ### Artificial Intelligence & RAG
 * **LangChain Engine**: Orchestrates prompts, splitters, chains, and vector store connectors.
-* **Google Generative AI**: Instantiates `gemini-2.5-flash` model and `text-embedding-004`.
+* **Google Generative AI**: Instantiates `gemini-2.5-flash` model and `gemini-embedding-001`.
 * **Pinecone Database**: Cloud vector database providing ultra-fast similarity searches.
 
 ---
 
-##  Setup & Installation
+## Setup & Installation
 
 Follow these steps to configure and boot the application locally.
 
 ### Prerequisites
 - Node.js installed (v18+ recommended)
 - A MongoDB cluster or a local MongoDB database instance running.
-- A Pinecone account and a created Vector Index (using `768` dimensions for `text-embedding-004`).
+- A Pinecone account and a created Vector Index (using `768` dimensions for `gemini-embedding-001`).
 - A Gemini Developer API Key.
 
 ---
@@ -148,7 +161,7 @@ Follow these steps to configure and boot the application locally.
 ### Step 1: Clone the Repository
 ```bash
 git clone <repository-url>
-cd VANI
+cd ASK_ME
 ```
 
 ---
@@ -183,14 +196,14 @@ cd VANI
 
 ### Step 3: Populate Context / Indexing PDFs
 
-Before using the chat interface, load your clinical PDFs into Pinecone:
+Before using the chat interface, load your maritime PDFs into Pinecone:
 
-1. Place your target `.pdf` clinical manuals inside the backend storage directories.
-2. Edit the pdf loader path `PDF_PATH` inside [indexing.js](file:///c:/Users/sharm/OneDrive/Desktop/VANI/backend/src/rag/indexing.js#L15):
+1. Place your target `.pdf` shipping manuals (e.g. `VANI_DATA.pdf`) inside the `backend/src/rag/` folder.
+2. Edit the pdf loader path `PDF_PATH` inside [indexing.js](file:///c:/Users/sharm/OneDrive/Desktop/ASK_ME/backend/src/rag/indexing.js#L68):
    ```javascript
-   const PDF_PATH = 'path/to/your/document.pdf';
+   const PDF_PATH = path.resolve(__dirname, './VANI_DATA.pdf');
    ```
-3. Run the indexing script to parse, split, embed, and upload the documents to Pinecone:
+3. Run the indexing script to clear the old index and upload the documents to Pinecone:
    ```bash
    node src/rag/indexing.js
    ```
@@ -224,10 +237,10 @@ Before using the chat interface, load your clinical PDFs into Pinecone:
 
 ---
 
-##  API Reference endpoints
+## API Reference endpoints
 
 ### Authentication (`/api/auth`)
-* `POST /register` - Register a new medical clinician profile (character length rules: name < 30, email < 30, password < 12).
+* `POST /register` - Register a new maritime officer profile.
 * `POST /login` - Sign in and receive a JSON Web Token cookie.
 * `POST /logout` - Clear cookies and terminate current session.
 * `PATCH /update-settings/:id` - Configure preferences (e.g. `hasMutedCompliance` states).
@@ -245,7 +258,7 @@ Before using the chat interface, load your clinical PDFs into Pinecone:
 
 ---
 
-##  Security & Injection Safeguards
+## Security & Injection Safeguards
 
 1. **NoSQL Query Injection Prevention**: All queries made against user profiles use strict `$eq` matching and character sanitization regex rules to prevent nested command objects from executing.
 2. **Strict Payload Validations**: Strict length boundaries are checked on name, email, and password properties prior to hitting DB operations.
