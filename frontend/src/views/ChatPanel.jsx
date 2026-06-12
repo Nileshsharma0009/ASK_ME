@@ -262,7 +262,7 @@ export default function ChatPanel() {
       handleSendMessage(inputMessage);
     }
   };
-const maritimeQuestions = [
+const quickPrompts = [
   'What is the role of the Master and why is their authority absolute?',
   'Why is the rudder critical and how does the steering gear move it?',
   'What is the purpose of bottom paint (antifouling)?',
