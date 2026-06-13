@@ -243,16 +243,16 @@ export default function LoginView() {
               ) : <span>Sign In</span>}
             </motion.button>
 
-            <motion.button
-              type="button"
-              onClick={handleGuestLogin}
-              disabled={loading}
-              variants={itemVariants}
-              whileTap={{ scale: 0.99 }}
-              className="w-full bg-slate-850 hover:bg-slate-900 text-white font-bold py-3.5 px-4 rounded-button shadow-card hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 text-base mt-3 flex items-center justify-center gap-2"
-            >
-              <span>Continue as Guest</span>
-            </motion.button>
+          <motion.button
+  type="button"
+  onClick={handleGuestLogin}
+  disabled={loading}
+  variants={itemVariants}
+  whileTap={{ scale: 0.99 }}
+  className="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-3.5 px-4 rounded-button shadow-card hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 text-base mt-3 flex items-center justify-center gap-2"
+>
+  <span>Continue as Guest</span>
+</motion.button>
           </form>
 
           <motion.div className="my-5 flex items-center gap-3" variants={itemVariants}>
