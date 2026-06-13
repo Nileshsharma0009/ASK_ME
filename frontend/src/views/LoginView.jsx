@@ -96,6 +96,23 @@ export default function LoginView() {
     }
   };
 
+  const handleGuestLogin = async () => {
+    setLoading(true);
+    setError('');
+    try {
+      sessionStorage.removeItem('VANI_session_compliance_viewed');
+      const { data } = await api.post("/auth/guest-login");
+      auth.login(data.user, data.token, { persist: true });
+      if (env.postLoginPath) {
+        navigate(env.postLoginPath, { replace: true });
+      }
+    } catch (err) {
+      setError(err.response?.data?.message || 'Guest login failed');
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const containerVariants = {
     hidden: { opacity: 0, y: 10 },
     visible: {
@@ -162,7 +179,7 @@ export default function LoginView() {
                 </div>
               </motion.div>
             </div>
-            <h1 className="text-3xl font-extrabold text-heading tracking-tight mb-1">ASK<span className="text-primary">_ME</span></h1>
+            <h1 className="text-3xl font-extrabold text-heading tracking-tight mb-1">VA<span className="text-primary">NI</span></h1>
             <p className="text-xs font-semibold tracking-wide text-secondary/90">AI Assistant for Maritime & Shipping</p>
           </div>
 
@@ -224,6 +241,17 @@ export default function LoginView() {
                   <span>Signing in...</span>
                 </div>
               ) : <span>Sign In</span>}
+            </motion.button>
+
+            <motion.button
+              type="button"
+              onClick={handleGuestLogin}
+              disabled={loading}
+              variants={itemVariants}
+              whileTap={{ scale: 0.99 }}
+              className="w-full bg-slate-850 hover:bg-slate-900 text-white font-bold py-3.5 px-4 rounded-button shadow-card hover:shadow-lg disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200 text-base mt-3 flex items-center justify-center gap-2"
+            >
+              <span>Continue as Guest</span>
             </motion.button>
           </form>
 

@@ -30,7 +30,7 @@ function AuthLoading() {
         />
         <div className="absolute inset-0 flex items-center justify-center">
           <span className="text-[10px] font-black text-primary tracking-widest uppercase">
-            ASK
+            VANI
           </span>
         </div>
       </div>

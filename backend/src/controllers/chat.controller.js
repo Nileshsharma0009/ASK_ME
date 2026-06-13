@@ -29,10 +29,46 @@ function mapConversationSummary(conversation) {
 
 export const sendMessage = async (req, res) => {
   try {
-    const { conversationId, question } = req.body;
+    const { conversationId, question, history: frontendHistory } = req.body;
 
     if (!question || !question.trim()) {
       return res.status(400).json({ message: "Question is required" });
+    }
+
+    if (req.user.isGuest) {
+      // Guest users bypass DB operations completely
+      let ragAnswer = null;
+      try {
+        const historyList = frontendHistory || [];
+        const formattedHistory = historyList.map(m => ({
+          role: m.sender === "human" ? "user" : "model",
+          content: m.text
+        }));
+        ragAnswer = await chatting(question.trim(), formattedHistory);
+      } catch (err) {
+        console.error('RAG pipeline error for guest:', err);
+        ragAnswer = null;
+      }
+
+      const assistantMessage = {
+        sender: "ai",
+        text: ragAnswer || buildAssistantReply(question.trim()),
+        metadata: {
+          retrieval: ["app-db", "vector-db", "similarity-search", "llm"],
+          source: "rag-pipeline",
+        },
+      };
+
+      return res.status(200).json({
+        conversationId: "guest-session",
+        conversation: {
+          id: "guest-session",
+          title: "Guest Session",
+          messages: [],
+          updatedAt: new Date(),
+        },
+        answer: assistantMessage,
+      });
     }
 
     let conversation = null;
@@ -106,6 +142,18 @@ export const sendMessage = async (req, res) => {
 
 export const getHistory = async (req, res) => {
   try {
+    if (req.user.isGuest) {
+      return res.status(200).json({
+        logs: [],
+        pagination: {
+          page: 1,
+          limit: 10,
+          total: 0,
+          totalPages: 1,
+        },
+      });
+    }
+
     const page = Math.max(Number(req.query.page) || 1, 1);
     const limit = Math.min(Math.max(Number(req.query.limit) || 10, 1), 50);
     const search = req.query.search?.trim();
@@ -142,6 +190,10 @@ export const getHistory = async (req, res) => {
 
 export const getConversationById = async (req, res) => {
   try {
+    if (req.user.isGuest) {
+      return res.status(404).json({ message: "Conversation not found" });
+    }
+
     const conversation = await ChatHistory.findOne({
       _id: req.params.id,
       user: req.user.id,
@@ -168,6 +220,10 @@ export const getConversationById = async (req, res) => {
 
 export const deleteConversation = async (req, res) => {
   try {
+    if (req.user.isGuest) {
+      return res.status(404).json({ message: "Conversation not found" });
+    }
+
     const deletedConversation = await ChatHistory.findOneAndDelete({
       _id: req.params.id,
       user: req.user.id,
@@ -186,6 +242,13 @@ export const deleteConversation = async (req, res) => {
 
 export const clearHistory = async (req, res) => {
   try {
+    if (req.user.isGuest) {
+      return res.status(200).json({
+        message: "Conversation history cleared successfully",
+        deletedCount: 0,
+      });
+    }
+
     const result = await ChatHistory.deleteMany({ user: req.user.id });
 
     return res.status(200).json({

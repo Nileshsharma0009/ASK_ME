@@ -4,6 +4,7 @@
 import User from "../models/UserModel.js";
 import bcrypt from "bcryptjs";
 import genToken from "../config/token.js";
+import jwt from "jsonwebtoken";
 
 // Helper regex format matching standard healthcare/corporate email patterns
 const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -62,11 +63,11 @@ export const register = async (req, res) => {
     return res.status(201).json({
       message: "Registration successful",
       user: {
-  id: user._id,
-  name: user.name,
-  email: user.email,
-  hasMutedCompliance: user.hasMutedCompliance // ◄ PASS THIS
-},
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        hasMutedCompliance: user.hasMutedCompliance // ◄ PASS THIS
+      },
     });
   } catch (errr) {
     console.error("Registration error:", errr);
@@ -118,11 +119,11 @@ export const login = async (req, res) => {
     return res.status(200).json({
       token,
       user: {
-  id: user._id,
-  name: user.name,
-  email: user.email,
-  hasMutedCompliance: user.hasMutedCompliance // ◄ PASS THIS
-},
+        id: user._id,
+        name: user.name,
+        email: user.email,
+        hasMutedCompliance: user.hasMutedCompliance // ◄ PASS THIS
+      },
     });
   } catch (err) {
     console.error("Login error:", err);
@@ -136,13 +137,13 @@ export const login = async (req, res) => {
 export const logout = async (req, res) => {
   try {
     const isProd = process.env.NODE_ENV === "production" || process.env.NODE_ENVIRONMENT === "production";
-    
+
     res.clearCookie("token", {
       httpOnly: true,
       secure: isProd,
       sameSite: isProd ? "none" : "lax",
     });
-    
+
     return res.status(200).json({ message: "Logged out successfully" });
   } catch (error) {
     console.error("Logout exception tracking sequence error:", error);
@@ -190,11 +191,11 @@ export const updateSettings = async (req, res) => {
   try {
     const { id } = req.params;
     // Database field name match karein: hasMutedCompliance
-    const { hasMutedCompliance } = req.body; 
+    const { hasMutedCompliance } = req.body;
 
     const updatedUser = await User.findByIdAndUpdate(
-      id, 
-      { $set: { hasMutedCompliance } }, 
+      id,
+      { $set: { hasMutedCompliance } },
       { new: true, runValidators: true }
     );
 
@@ -202,11 +203,53 @@ export const updateSettings = async (req, res) => {
       return res.status(404).json({ message: "User not found" });
     }
 
-    res.status(200).json({ 
-      success: true, 
-      user: updatedUser 
+    res.status(200).json({
+      success: true,
+      user: updatedUser
     });
   } catch (err) {
     res.status(500).json({ message: "Settings update failed", error: err.message });
+  }
+};
+
+export const guestLogin = async (req, res) => {
+  try {
+    const isProd = process.env.NODE_ENV === "production" || process.env.NODE_ENVIRONMENT === "production";
+
+    // Generate a temporary unique guest ID
+    const guestId = "guest_" + Math.random().toString(36).substring(2, 9);
+
+    const guestPayload = {
+      id: guestId,
+      isGuest: true,
+      name: "Guest User",
+      email: "guest@askme.local",
+    };
+
+    // Sign token with 3h expiration (few hours)
+    const token = jwt.sign(guestPayload, process.env.JWT_SECRET, {
+      expiresIn: "3h",
+    });
+
+    res.cookie("token", token, {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax",
+      maxAge: 3 * 60 * 60 * 1000, // 3 hours
+    });
+
+    return res.status(200).json({
+      token,
+      user: {
+        id: guestId,
+        name: "Guest User",
+        email: "guest@askme.local",
+        isGuest: true,
+        hasMutedCompliance: true, // Bypass compliance check prompt for temporary guest sessions
+      },
+    });
+  } catch (error) {
+    console.error("Guest login error:", error);
+    return res.status(500).json({ message: "Guest login failed" });
   }
 };

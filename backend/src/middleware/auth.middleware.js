@@ -11,7 +11,7 @@ function authMiddleware(req, res, next) {
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
 
-    req.user = { id: decoded.id };
+    req.user = { id: decoded.id, isGuest: decoded.isGuest || false };
     next();
   } catch (error) {
     return res.status(401).json({ message: "Unauthorized" });

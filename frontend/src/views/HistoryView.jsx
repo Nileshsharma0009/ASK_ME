@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { motion } from 'framer-motion';
 import { useNavigate } from 'react-router-dom';
-import { FiSearch, FiTrash2, FiMessageSquare, FiChevronLeft, FiChevronRight } from 'react-icons/fi';
+import { FiSearch, FiTrash2, FiMessageSquare, FiChevronLeft, FiChevronRight, FiClock } from 'react-icons/fi';
 import api from '../services/api';
+import { AuthContext } from '../context/AuthContext';
 
 /* ==========================================================================
    MAIN COMPONENT: HistoryView
@@ -10,6 +11,9 @@ import api from '../services/api';
    ========================================================================== */
 export default function HistoryView() {
   const navigate = useNavigate();
+  const auth = useContext(AuthContext);
+  const isGuest = auth?.user?.isGuest === true;
+
   const [historyLogs, setHistoryLogs] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [isLoading, setIsLoading] = useState(true);
@@ -22,6 +26,11 @@ export default function HistoryView() {
   });
 
   useEffect(() => {
+    if (isGuest) {
+      setIsLoading(false);
+      return;
+    }
+
     const loadConversationHistory = async () => {
       try {
         setIsLoading(true);
@@ -124,6 +133,27 @@ export default function HistoryView() {
     (_, idx) => idx + 1
   );
 
+  if (isGuest) {
+    return (
+      <div className="max-w-md mx-auto mt-20 p-8 bg-card-bg border border-border-default rounded-card shadow-card text-center flex flex-col items-center gap-4">
+        <div className="w-16 h-16 bg-slate-100 rounded-2xl flex items-center justify-center border border-border-default shadow-sm text-secondary mb-2">
+          <FiClock className="w-8 h-8 text-primary" />
+        </div>
+        <h3 className="text-xl font-extrabold text-heading">History Unavailable</h3>
+        <p className="text-sm text-secondary font-medium leading-relaxed">
+          Chat history features are not available during guest sessions. Please create a permanent account or log in with your credentials to save and retrieve past conversations.
+        </p>
+        <button
+          type="button"
+          onClick={() => navigate('/chat')}
+          className="mt-4 px-5 py-2.5 bg-primary hover:bg-primary-dark text-white font-bold rounded-xl text-sm shadow-md transition-all cursor-pointer"
+        >
+          Return to Chat
+        </button>
+      </div>
+    );
+  }
+
   return (
     /* ==========================================================================
        UI BLOCK: MAIN CONTAINER FRAMEWORK
@@ -137,7 +167,7 @@ export default function HistoryView() {
       {/* HEADER SECTION: Title Typography Block */}
       <div>
         <h3 className="text-xl font-extrabold text-heading tracking-tight">Conversation History</h3>
-        <p className="text-xs font-semibold text-secondary mt-0.5">View, reopen, and delete your saved ASK_ME chats</p>
+        <p className="text-xs font-semibold text-secondary mt-0.5">View, reopen, and delete your saved VANI chats</p>
       </div>
 
       {/* ==========================================================================

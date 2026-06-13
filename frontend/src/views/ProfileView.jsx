@@ -30,12 +30,14 @@ export default function ProfileView() {
     return hash % LOCAL_AVATARS.length;
   };
 
+  const isGuest = auth?.user?.isGuest === true;
+
   const [profileData, setProfileData] = useState({
-    fullName: auth?.user?.name || 'User',
-    email: auth?.user?.email || 'user@example.com',
-    department: auth?.user?.department || '---',
-    role: auth?.user?.role || 'visitor',
-    phone: auth?.user?.phone || '—',
+    fullName: isGuest ? 'Guest User' : (auth?.user?.name || 'User'),
+    email: isGuest ? 'guest@vani.local' : (auth?.user?.email || 'user@example.com'),
+    department: isGuest ? 'Guest Operations' : (auth?.user?.department || '---'),
+    role: isGuest ? 'Guest' : (auth?.user?.role || 'visitor'),
+    phone: isGuest ? '—' : (auth?.user?.phone || '—'),
     
     /* ==========================================================================
        TODO: BACKEND_INTEGRATION
@@ -43,12 +45,12 @@ export default function ProfileView() {
        schema returns these keys (e.g., createdAt timestamps, verification 
        booleans, and 2FA user configurations).
        ========================================================================== */
-    memberSince: 'May 15, 2025', // TODO: Fetch dynamic dynamic registration date string
-    isVerified: true,            // TODO: Fetch dynamic dynamic account verification state
+    memberSince: isGuest ? 'Temporary Session' : 'May 15, 2025', // TODO: Fetch dynamic dynamic registration date string
+    isVerified: !isGuest,            // TODO: Fetch dynamic dynamic account verification state
     twoFactorEnabled: false,     // TODO: Fetch dynamic dynamic 2FA system setting status
     
     // Assigned deterministic dynamic string reference from your local asset arrays folder
-    profileImage: auth?.user?.profileImage || LOCAL_AVATARS[getAvatarIndex(auth?.user?.email || 'default')], // TODO: Fetch active CDN URL path
+    profileImage: isGuest ? "/1.png" : (auth?.user?.profileImage || LOCAL_AVATARS[getAvatarIndex(auth?.user?.email || 'default')]), // TODO: Fetch active CDN URL path
   });
 
   useEffect(() => {
@@ -112,16 +114,18 @@ export default function ProfileView() {
               className="w-36 h-36 rounded-full object-cover border-4 border-slate-50 shadow-md group-hover:opacity-90 transition-opacity"
             />
             {/* ACTION TRIGGERS: Upload Camera Button */}
-            <button
-              type="button"
-              onClick={() => {
-                /* TODO: BACKEND_INTEGRATION trigger photo upload API stream handler */
-              }}
-              className="absolute bottom-1 right-1 w-9 h-9 bg-white rounded-full border border-border-default flex items-center justify-center text-secondary hover:text-primary shadow-sm transition-transform group-hover:scale-105"
-              aria-label="Change photo"
-            >
-              <FiCamera className="w-4 h-4" />
-            </button>
+            {!isGuest && (
+              <button
+                type="button"
+                onClick={() => {
+                  /* TODO: BACKEND_INTEGRATION trigger photo upload API stream handler */
+                }}
+                className="absolute bottom-1 right-1 w-9 h-9 bg-white rounded-full border border-border-default flex items-center justify-center text-secondary hover:text-primary shadow-sm transition-transform group-hover:scale-105"
+                aria-label="Change photo"
+              >
+                <FiCamera className="w-4 h-4" />
+              </button>
+            )}
           </div>
 
           {/* SIDEBAR LABELS: Primary User Naming Title */}
@@ -159,7 +163,20 @@ export default function ProfileView() {
         </div>
                                  {/* {UI COMPONENT BLOCK: RIGHT PANELS COLUMN WRAPPER} */}
         <div className="md:col-span-2 space-y-6">
-          
+          {isGuest && (
+            <div className="bg-slate-100 border border-slate-200 text-slate-700 rounded-card p-5 shadow-sm text-left flex items-start gap-4">
+              <div className="w-10 h-10 bg-slate-200/80 rounded-xl flex items-center justify-center text-slate-700 shrink-0">
+                <MdShield className="w-5 h-5" />
+              </div>
+              <div>
+                <h4 className="text-sm font-extrabold text-heading">Guest Access Session</h4>
+                <p className="text-xs text-secondary font-medium mt-1 leading-relaxed">
+                  You are currently logged in with a guest session. Chat history saving, 2FA settings, profile customization, and password updates are disabled. This session and its local messages will automatically expire and be cleared in 15 minutes.
+                </p>
+              </div>
+            </div>
+          )}
+
           {/* ==========================================================================
              UI COMPONENT SUB-BLOCK: ACCOUNT METRICS LIST DETAILS PANEL
              ========================================================================== */}
@@ -171,6 +188,7 @@ export default function ProfileView() {
             {/* LIST STRUCTURE: Mapped item layouts split row components */}
             <div className="divide-y divide-border-default/60 space-y-4">
               {[
+                ...(isGuest ? [{ label: 'Guest Session ID', value: auth?.user?.id || 'guest_temp_id' }] : []),
                 { label: 'Full Name', value: profileData.fullName },
                 { label: 'Email Address', value: profileData.email },
                 // { label: 'Department', value: profileData.department },
@@ -185,16 +203,18 @@ export default function ProfileView() {
                     <span className="text-sm font-extrabold text-heading mt-1">{row.value}</span>
                   </div>
                   {/* DETAIL ACTION BUTTONS: Individual Field Edit Modifier */}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      /* TODO: BACKEND_INTEGRATION context modal implementation for targeted field patch requests */
-                    }}
-                    className="w-8 h-8 rounded-lg border border-border-default bg-slate-50 flex items-center justify-center text-secondary opacity-40 group-hover:opacity-100 hover:text-primary hover:border-primary/30 transition-all shadow-sm"
-                    aria-label={`Edit {row.label}`}
-                  >
-                    <FiEdit2 className="w-3.5 h-3.5" />
-                  </button>
+                  {!isGuest && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        /* TODO: BACKEND_INTEGRATION context modal implementation for targeted field patch requests */
+                      }}
+                      className="w-8 h-8 rounded-lg border border-border-default bg-slate-50 flex items-center justify-center text-secondary opacity-40 group-hover:opacity-100 hover:text-primary hover:border-primary/30 transition-all shadow-sm"
+                      aria-label={`Edit ${row.label}`}
+                    >
+                      <FiEdit2 className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
               ))}
 
@@ -209,15 +229,19 @@ export default function ProfileView() {
                   </span>
                 </div>
                 {/* DETAIL ACTION BUTTONS: Operational Password Update Trigger */}
-                <button
-                  type="button"
-                  onClick={() => {
-                    /* TODO: BACKEND_INTEGRATION route password patch verification context */
-                  }}
-                  className="bg-slate-50 border border-border-default hover:border-primary text-heading hover:text-primary px-4 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm"
-                >
-                  Change
-                </button>
+                {!isGuest ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      /* TODO: BACKEND_INTEGRATION route password patch verification context */
+                    }}
+                    className="bg-slate-50 border border-border-default hover:border-primary text-heading hover:text-primary px-4 py-1.5 rounded-xl text-xs font-bold transition-all shadow-sm"
+                  >
+                    Change
+                  </button>
+                ) : (
+                  <span className="text-xs font-bold text-secondary italic">Disabled</span>
+                )}
               </div>
             </div>
           </div>
@@ -244,13 +268,14 @@ export default function ProfileView() {
               {/* TOGGLE ELEMENT INTERFACES: Two Factor Switch Trigger */}
               <button
                 type="button"
+                disabled={isGuest}
                 onClick={() =>
                   /* TODO: BACKEND_INTEGRATION handle secondary confirmation/deactivation endpoint workflows */
                   setProfileData((p) => ({ ...p, twoFactorEnabled: !p.twoFactorEnabled }))
                 }
                 className={`w-12 h-6 rounded-full p-1 transition-colors duration-200 outline-none ${
                   profileData.twoFactorEnabled ? 'bg-primary' : 'bg-slate-300'
-                }`}
+                } ${isGuest ? 'opacity-50 cursor-not-allowed' : ''}`}
                 aria-label="Toggle two-factor authentication"
               >
                 <div

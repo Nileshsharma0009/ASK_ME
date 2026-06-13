@@ -120,6 +120,10 @@ export default function ChatPanel() {
   // 2. MOUNT PROTECTION LAYER
   useEffect(() => {
     const loadConversation = async () => {
+      if (auth?.user?.isGuest) {
+        // Guests do not load DB history
+        return;
+      }
       if (!activeConversationId) {
         if (messages.length === 0) {
           setConversationId('');
@@ -221,26 +225,44 @@ export default function ChatPanel() {
     ]);
 
     try {
+      const isGuest = auth?.user?.isGuest === true;
       const { data } = await api.post(
         '/chat/message',
         {
-          conversationId: conversationId || undefined,
+          conversationId: isGuest ? undefined : (conversationId || undefined),
           question: prompt,
+          history: isGuest ? messages : undefined,
         },
         {
           signal: controller.signal,
         }
       );
 
-      const responseMessages = data.conversation.messages || [];
-      const latestAiMessage = [...responseMessages].reverse().find(
-        (message) => message.sender === 'ai' && !message.isError
-      );
+      if (isGuest) {
+        const newAiMessage = {
+          _id: `temp-ai-resp-${Date.now()}`,
+          sender: 'ai',
+          text: data.answer.text,
+          metadata: data.answer.metadata,
+          createdAt: new Date().toISOString(),
+        };
+        setMessages((prev) => {
+          const filtered = prev.filter((msg) => !msg.isPending);
+          return [...filtered, newAiMessage];
+        });
+        setConversationId('guest-session');
+        setAnimatedMessageId(newAiMessage._id);
+      } else {
+        const responseMessages = data.conversation.messages || [];
+        const latestAiMessage = [...responseMessages].reverse().find(
+          (message) => message.sender === 'ai' && !message.isError
+        );
 
-      setConversationId(data.conversationId);
-      setMessages(responseMessages);
-      setAnimatedMessageId(latestAiMessage?._id || null);
-      setSearchParams({ chatId: data.conversationId });
+        setConversationId(data.conversationId);
+        setMessages(responseMessages);
+        setAnimatedMessageId(latestAiMessage?._id || null);
+        setSearchParams({ chatId: data.conversationId });
+      }
     } catch (error) {
       if (error.code === 'ERR_CANCELED' || error.name === 'CanceledError') {
         return;
@@ -317,7 +339,7 @@ export default function ChatPanel() {
               </div>
 
               <h1 className="text-5xl font-black tracking-tight text-heading sm:text-6xl text-center font-sans">
-                ASK_<span className="text-primary bg-clip-text bg-gradient-to-r from-primary to-primary-muted">ME</span>
+                VA<span className="text-primary bg-clip-text bg-gradient-to-r from-primary to-primary-muted">NI</span>
               </h1>
               <p className="mx-auto mt-6 max-w-2xl text-[15px] sm:text-[16px] font-medium leading-8 text-secondary text-center tracking-normal">
   Hey! I'm your maritime AI assistant, here to help with shipping regulations, safety protocols, and merchant navy operations.
@@ -364,7 +386,7 @@ export default function ChatPanel() {
                           <img src="/logo.png" alt="AI" className="w-full h-full object-cover" />
                         </div>
                         <div>
-                          <p className="text-sm font-bold text-heading">ASK_ME</p>
+                          <p className="text-sm font-bold text-heading">VANI</p>
                           <p className="text-xs font-medium text-secondary">
                             {isPending ? ' Reviewing your query' : isStopped ? 'Stopped' : 'Maritime assistant'}
                           </p>
@@ -425,7 +447,7 @@ export default function ChatPanel() {
               <textarea
                 ref={textareaRef}
                 rows={1}
-                placeholder="Message ASK_ME"
+                placeholder="Message VANI"
                 value={inputMessage}
                 onChange={(event) => setInputMessage(event.target.value)}
                 onKeyDown={handleKeyDown}
@@ -453,7 +475,7 @@ export default function ChatPanel() {
                   <span>
                     {isGenerating
                       ? 'Generating. Press Stop to cancel this answer.'
-                      : 'ASK_ME is a maritime RAG assistant. Verify critical navigation/safety decisions with official documentation.'}
+                      : 'VANI is a maritime RAG assistant. Verify critical navigation/safety decisions with official documentation.'}
                   </span>
                 </div>
               </div>

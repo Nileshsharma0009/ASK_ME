@@ -19,7 +19,7 @@ import { env } from '../../config/env';
 
 // 1. Clean Configuration for Navigation Items
 const NAV_ITEMS = [
-  { to: '.', end: true, label: 'ASK_ME', icon: FiMessageSquare, segment: 'chat' },
+  { to: '.', end: true, label: 'VANI', icon: FiMessageSquare, segment: 'chat' },
   { to: 'New chat', label: 'New chat', icon: FiUploadCloud, segment: 'New chat' },
   { to: 'history', label: 'History', icon: FiClock, segment: 'history' },
   { to: 'profile', label: 'Profile', icon: FiUser, segment: 'profile' },
@@ -69,6 +69,9 @@ export default function DashboardLayout() {
   const segment = getActiveSegment(location.pathname);
   const headerTitle = PAGE_TITLES[segment];
   const isChat = segment === 'chat' || segment === 'New chat';
+  const isGuest = auth?.user?.isGuest === true;
+
+  const navItems = NAV_ITEMS.filter((item) => !(item.segment === 'history' && isGuest));
 
   const sidebarVariants = {
     open: { width: '260px', opacity: 1, transition: { type: 'spring', stiffness: 240, damping: 28 } },
@@ -121,7 +124,7 @@ export default function DashboardLayout() {
                 </div>
                 {isSidebarOpen && (
                   <motion.div initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} className="whitespace-nowrap">
-                    <h1 className="text-base font-black tracking-tight text-heading">ASK<span className="text-primary">_ME</span></h1>
+                    <h1 className="text-base font-black tracking-tight text-heading">VA<span className="text-primary">NI</span></h1>
                     <p className="text-[9px] uppercase tracking-widest text-secondary font-extrabold">Maritime RAG Engine</p>
                   </motion.div>
                 )}
@@ -133,7 +136,7 @@ export default function DashboardLayout() {
 
             {/* SIDEBAR NAVIGATION LINKS */}
             <nav className="space-y-1.5 w-full flex flex-col items-center">
-              {NAV_ITEMS.map((item) => {
+              {navItems.map((item) => {
                 const Icon = item.icon;
                 if (item.segment === 'New chat') {
                   return (

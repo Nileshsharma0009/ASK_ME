@@ -34,6 +34,15 @@ export default function SettingsView() {
       setIsComplianceOpen(true);
     }
 
+    if (auth?.user?.isGuest) {
+      if (auth?.updateUser) {
+        auth.updateUser({ ...auth.user, hasMutedCompliance: newState });
+      }
+      setSyncStatus('Compliance preference updated locally (Guest Mode).');
+      setTimeout(() => setSyncStatus(''), 2500);
+      return;
+    }
+
     try {
       const userId = auth?.user?.id || auth?.user?._id;
       // Backend ko correct field bhej rahe hain
