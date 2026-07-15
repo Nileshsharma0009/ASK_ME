@@ -1,4 +1,4 @@
-# ASK_ME: Maritime RAG AI Companion
+# VANI: Maritime RAG AI Companion
 
 `ASK_ME` is a premium, high-performance **Retrieval-Augmented Generation (RAG)** platform designed specifically for maritime professionals, sailors, and merchant navy officers. It enables users to instantly query complex shipping manuals, safety protocols, maritime regulations, and merchant navy documentation via a modern web interface.
 
