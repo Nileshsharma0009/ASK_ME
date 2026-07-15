@@ -7,6 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import api from '../services/api';
 import { AuthContext } from '../context/AuthContext';
 import { env } from '../config/env';
+import LoginMaritimeBackground from '../components/Landing/LoginMaritimeBackground';
 
 export default function LoginView() {
   const auth = useContext(AuthContext);
@@ -18,55 +19,7 @@ export default function LoginView() {
   const [error, setError] = useState('');
   const navigate = useNavigate();
 
-  //   const handleLogin = async (e) => {
-  //     e.preventDefault();
-  //     setLoading(true);
-  //     setError('');
 
-  //     const cleanEmail = username.trim();
-
-  //     /* ==========================================================================
-  //        STRICT SECURITY CHECK: COMPLIANCE INPUT VALIDATION ENGINE
-  //        ========================================================================== */
-  //     if (cleanEmail.length >= 30) {
-  //       setError('Username/Email must be less than 30 characters');
-  //       setLoading(false);
-  //       return;
-  //     }
-
-  //     if (password.length >= 12) {
-  //       setError('Password must be less than 12 characters');
-  //       setLoading(false);
-  //       return;
-  //     }
-
-  //     try {
-  //       /* ==========================================================================
-  //          CRITICAL HANDSHAKE: FLUSH OLD SESSION ON CLEAN AUTHENTICATION
-  //          Explicitly purges any saved session keys BEFORE logging in new user profile.
-  //          ========================================================================== */
-  //       sessionStorage.removeItem('VANI_session_compliance_viewed');
-
-  //       const baseUrl = import.meta.env.VITE_BACKEND_URL; 
-
-  //       console.log("Backend URL:", baseUrl);
-  // console.log("Login URL:", `${baseUrl}/auth/login`);
-
-  //       const { data } = await api.post(`${baseUrl}/auth/login`, {
-  //         email: cleanEmail,
-  //         password,
-  //       });
-
-  //       auth.login(data.user, data.token, { persist: rememberMe });
-  //       if (env.postLoginPath) {
-  //         navigate(env.postLoginPath, { replace: true });
-  //       }
-  //     } catch (err) {
-  //       setError(err.response?.data?.message || 'Login failed');
-  //     } finally {
-  //       setLoading(false);
-  //     }
-  //   };
 
   const handleLogin = async (e) => {
     e.preventDefault();
@@ -132,45 +85,15 @@ export default function LoginView() {
   };
 
   return (
-    <div className="min-h-screen relative bg-indigo-50 flex items-center justify-center p-4 antialiased overflow-hidden">
-      <div
-        className="absolute inset-0 overflow-hidden pointer-events-none z-0"
-        onMouseMove={(e) => {
-          const { currentTarget, clientX, clientY } = e;
-          const { left, top, width, height } = currentTarget.getBoundingClientRect();
-          const x = (clientX - left - width / 2) / (width / 2);
-          const y = (clientY - top - height / 2) / (height / 2);
-          currentTarget.style.setProperty('--mouse-x', `${x * 12}px`);
-          currentTarget.style.setProperty('--mouse-y', `${y * 12}px`);
-        }}
-        style={{ '--mouse-x': '0px', '--mouse-y': '0px', pointerEvents: 'auto' }}
-      >
-        <div
-          className="absolute inset-0 transition-transform duration-300 ease-out"
-          style={{
-            backgroundImage: `
-              linear-gradient(to right, rgba(6, 182, 212, 0.16) 1.5px, transparent 1.5px),
-              linear-gradient(to bottom, rgba(6, 182, 212, 0.16) 1.5px, transparent 1.5px)
-            `,
-            backgroundSize: '30px 30px',
-            transform: 'translate(var(--mouse-x), var(--mouse-y)) scale(1.02)',
-            maskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, #000 60%, transparent 100%)',
-            WebkitMaskImage: 'radial-gradient(ellipse 70% 70% at 50% 50%, #000 60%, transparent 100%)'
-          }}
-        />
-        <div className="absolute w-[400px] h-[400px] bg-cyan-400/10 rounded-full blur-[120px] transition-all duration-500 ease-out mix-blend-screen" style={{ left: 'calc(50% - 200px)', top: 'calc(50% - 200px)', transform: 'translate(calc(var(--mouse-x) * 2.5), calc(var(--mouse-y) * 2.5))' }} />
-      </div>
+    <div className="login-page-shell min-h-screen relative flex items-center justify-center overflow-hidden antialiased">
+      <LoginMaritimeBackground />
 
-      <div className="absolute top-0 inset-x-0 h-80 bg-gradient-to-b from-primary/20 to-transparent pointer-events-none blur-3xl -z-10" />
-      <div className="absolute top-[10%] left-[15%] w-96 h-96 rounded-full bg-primary/10 blur-[100px] pointer-events-none -z-10" />
-      <div className="absolute bottom-[10%] right-[15%] w-96 h-96 rounded-full bg-violet-400/20 blur-[100px] pointer-events-none -z-10" />
-
-      <motion.div className="relative z-10 w-full max-w-[440px]" variants={containerVariants} initial="hidden" animate="visible">
+      <motion.div className="relative z-10 w-full max-w-[440px] lg:mr-auto lg:ml-[clamp(1.25rem,6vw,6rem)]" variants={containerVariants} initial="hidden" animate="visible">
         <motion.div className="mb-5 flex justify-center" variants={itemVariants}>
           <div className="bg-primary px-7 py-2 rounded-xl text-white text-sm font-bold tracking-wide shadow-md">Login page</div>
         </motion.div>
 
-        <div className="bg-card-bg rounded-modal p-8 border border-border-default/80 shadow-modal">
+        <div className="bg-card-bg/88 backdrop-blur-xl rounded-modal p-8 border border-white/50 shadow-modal">
           <div className="text-center mb-6">
             <div className="flex justify-center mb-3">
               <motion.div className="w-16 h-16 bg-white rounded-2xl flex items-center justify-center border-2 border-primary/20 shadow-card overflow-hidden" whileHover={{ scale: 1.03 }}>

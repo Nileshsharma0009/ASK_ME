@@ -68,6 +68,8 @@
   --shadow-modal: 0px 28px 70px rgba(2, 6, 23, 0.55);
 } */
 
+
+
 [data-theme='light'] {
   --color-app-bg: #f8fafc;
   --color-card-bg: #ffffff;
@@ -118,3 +120,260 @@ body {
 .login-gradient {
   background: linear-gradient(135deg, #6C4DFF 0%, #8B6CFF 50%, #4F2FFF 100%);
 }
+
+.login-page-shell {
+  background:
+    radial-gradient(circle at 14% 20%, rgba(73, 130, 255, 0.14), transparent 24%),
+    radial-gradient(circle at 82% 18%, rgba(56, 189, 248, 0.12), transparent 20%),
+    linear-gradient(140deg, #04172e 0%, #092b57 38%, #0c3b74 68%, #04111d 100%);
+}
+
+.login-maritime-scene {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.login-space-layer,
+.login-starfield,
+.login-space-grid,
+.login-space-glow,
+.login-cesium-shell,
+.login-scene-caption {
+  position: absolute;
+}
+
+.login-space-layer {
+  inset: 0;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(125, 211, 252, 0.08), transparent 40%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent 40%);
+}
+
+.login-starfield {
+  inset: 0;
+  background-repeat: repeat;
+  opacity: 0.75;
+}
+
+.login-starfield-near {
+  background-image:
+    radial-gradient(circle at 10% 18%, rgba(255, 255, 255, 0.9) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 24% 42%, rgba(186, 230, 253, 0.8) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 74% 24%, rgba(255, 255, 255, 0.9) 0 1.2px, transparent 1.8px),
+    radial-gradient(circle at 88% 56%, rgba(191, 219, 254, 0.75) 0 1px, transparent 1.6px),
+    radial-gradient(circle at 62% 80%, rgba(255, 255, 255, 0.75) 0 1px, transparent 1.6px);
+  animation: star-drift 26s linear infinite;
+}
+
+.login-starfield-far {
+  background-image:
+    radial-gradient(circle at 16% 70%, rgba(255, 255, 255, 0.65) 0 0.8px, transparent 1.4px),
+    radial-gradient(circle at 34% 22%, rgba(147, 197, 253, 0.55) 0 0.8px, transparent 1.4px),
+    radial-gradient(circle at 56% 10%, rgba(255, 255, 255, 0.7) 0 0.8px, transparent 1.4px),
+    radial-gradient(circle at 70% 66%, rgba(125, 211, 252, 0.6) 0 0.8px, transparent 1.4px),
+    radial-gradient(circle at 92% 36%, rgba(255, 255, 255, 0.6) 0 0.8px, transparent 1.4px);
+  animation: star-drift 42s linear infinite reverse;
+}
+
+.login-space-grid {
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(147, 197, 253, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(147, 197, 253, 0.08) 1px, transparent 1px);
+  background-size: 48px 48px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.75), transparent 92%);
+  opacity: 0.45;
+}
+
+.login-space-glow {
+  width: 32rem;
+  height: 32rem;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.38;
+}
+
+.login-space-glow-top {
+  top: -8rem;
+  right: 12%;
+  background: rgba(56, 189, 248, 0.38);
+}
+
+.login-space-glow-bottom {
+  bottom: -10rem;
+  right: 20%;
+  background: rgba(37, 99, 235, 0.3);
+}
+
+.login-cesium-shell {
+  right: clamp(-13rem, -6vw, -3rem);
+  top: 50%;
+  width: min(88vw, 1360px);
+  height: min(96vh, 1080px);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.login-cesium-viewer {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 56px;
+  filter: saturate(1.05) brightness(0.94) contrast(1.02);
+  box-shadow:
+    0 0 0 1px rgba(191, 219, 254, 0.08),
+    0 30px 90px rgba(2, 6, 23, 0.45);
+}
+
+.login-cesium-viewer .cesium-viewer,
+.login-cesium-viewer .cesium-viewer-cesiumWidget,
+.login-cesium-viewer .cesium-widget,
+.login-cesium-viewer canvas {
+  width: 100%;
+  height: 100%;
+  border-radius: inherit;
+}
+
+.login-cesium-viewer .cesium-viewer-bottom,
+.login-cesium-viewer .cesium-viewer-toolbar {
+  display: none !important;
+}
+
+.login-cesium-vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  border-radius: 56px;
+  background:
+    radial-gradient(circle at 62% 44%, transparent 34%, rgba(2, 6, 23, 0.18) 70%, rgba(2, 6, 23, 0.62) 100%),
+    linear-gradient(90deg, rgba(3, 15, 30, 0.5) 0%, rgba(3, 15, 30, 0.16) 16%, transparent 28%, transparent 100%);
+  box-shadow: inset 0 0 120px rgba(2, 6, 23, 0.45);
+}
+
+.login-cesium-arc {
+  position: absolute;
+  border: 1px solid rgba(147, 197, 253, 0.16);
+  border-radius: 9999px;
+  z-index: 1;
+}
+
+.login-cesium-arc-one {
+  inset: 7% 8% 13% 39%;
+  transform: rotate(18deg);
+}
+
+.login-cesium-arc-two {
+  inset: 16% -2% 3% 54%;
+  transform: rotate(-13deg);
+}
+
+.login-scene-caption {
+  right: clamp(2rem, 7vw, 6rem);
+  bottom: clamp(9rem, 12vw, 12rem);
+  max-width: 27rem;
+  color: rgba(239, 246, 255, 0.92);
+  z-index: 3;
+}
+
+.login-caption-kicker {
+  margin-bottom: 0.6rem;
+  color: rgba(125, 211, 252, 0.9);
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.login-scene-caption h2 {
+  margin: 0;
+  font-size: clamp(1.6rem, 2vw, 2.35rem);
+  line-height: 1.1;
+  font-weight: 800;
+}
+
+.login-scene-caption p {
+  margin-top: 0.9rem;
+  color: rgba(219, 234, 254, 0.8);
+  font-size: 0.92rem;
+  line-height: 1.7;
+}
+
+.login-feature-strip {
+  position: absolute;
+  left: clamp(1.5rem, 4vw, 4rem);
+  right: clamp(1.5rem, 4vw, 4rem);
+  bottom: clamp(1.25rem, 3vw, 2.5rem);
+  z-index: 3;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1.1rem;
+}
+
+.login-feature-card {
+  padding: 1rem 1.15rem;
+  border: 1px solid rgba(191, 219, 254, 0.14);
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(7, 20, 40, 0.72), rgba(7, 20, 40, 0.48));
+  backdrop-filter: blur(12px);
+  box-shadow: 0 18px 45px rgba(2, 6, 23, 0.22);
+  color: rgba(239, 246, 255, 0.9);
+}
+
+.login-feature-card strong {
+  display: block;
+  margin-bottom: 0.35rem;
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.login-feature-card span {
+  display: block;
+  color: rgba(191, 219, 254, 0.78);
+  font-size: 0.82rem;
+  line-height: 1.55;
+}
+
+@keyframes star-drift {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-2%, 3%, 0);
+  }
+}
+
+@media (max-width: 1023px) {
+  .login-cesium-shell {
+    right: 50%;
+    top: 53%;
+    width: min(140vw, 980px);
+    height: min(84vh, 760px);
+    transform: translate(50%, -50%);
+    opacity: 0.68;
+  }
+
+  .login-scene-caption {
+    display: none;
+  }
+
+  .login-feature-strip {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    bottom: 1.1rem;
+  }
+}
+
+@media (max-width: 767px) {
+  .login-cesium-shell {
+    width: 176vw;
+    height: 68vh;
+    top: 58%;
+    opacity: 0.42;
+  }
+
+  .login-feature-strip {
+    display: none;
+  }
+}
+
